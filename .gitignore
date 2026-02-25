@@ -56,3 +56,5 @@ dkms.conf
 
 build/
 out/
+
+src/pow3.c

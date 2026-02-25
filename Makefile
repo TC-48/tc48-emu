@@ -75,9 +75,12 @@ ifeq ($(JFLAG),)
 	JFLAG := -j1
 endif
 
+POW3_PY := scripts/pow3.py
+POW3_C  := $(SRC_DIR)/pow3.c
+
 .PHONY: all dirs clean run tests sharedlib
 
-all: dirs $(TARGET) $(LIB_STATIC) $(LIB_SHARED) $(TEST_BIN)
+all: dirs $(POW3_C) $(TARGET) $(LIB_STATIC) $(LIB_SHARED) $(TEST_BIN)
 
 dirs:
 	@$(call CMD_MKDIR_P,$(LIB_DIR))
@@ -86,6 +89,10 @@ dirs:
 	@$(call CMD_MKDIR_P,$(DEP_ROOT_DIR))
 	@$(call CMD_MKDIR_P,$(OBJ_ROOT_DIR)/shared)
 	@$(call CMD_MKDIR_P,$(DEP_ROOT_DIR)/shared)
+
+$(POW3_C): $(POW3_PY)
+	@echo "Generating $@..."
+	@python3 $(POW3_PY) > $@
 
 $(LIB_STATIC): $(LIB_OBJ_STATIC)
 	ar rcs $@ $^
