@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tc48/cpu/reg.h>
+
 #include <tc48/word.h>
 
 #define TC48_INSTR_FORMAT_R   TC48_DOUBLET(0, 0)
@@ -14,11 +16,6 @@
 #define TC48_OPERAND_WIDTH_24 TC48_DOUBLET(0, 2)
 #define TC48_OPERAND_WIDTH_48 TC48_DOUBLET(1, 0)
 
-typedef struct tc48_regid {
-    tc48_quadruplet base;
-    tc48_doublet lane;
-} tc48_regid;
-
 typedef union tc48_imm {
     tc48_tryte i6;
     tc48_quarter i12;
@@ -32,28 +29,28 @@ typedef struct tc48_instr {
     tc48_doublet width;
     union {
         struct {
-            tc48_regid r1;
+            tc48_reg_id r1;
         } r;
         struct {
-            tc48_regid r1;
-            tc48_regid r2;
+            tc48_reg_id r1;
+            tc48_reg_id r2;
         } rr;
         struct {
-            tc48_regid r1;
-            tc48_regid r2;
-            tc48_regid r3;
+            tc48_reg_id r1;
+            tc48_reg_id r2;
+            tc48_reg_id r3;
         } rrr;
         struct {
-            tc48_regid r1;
+            tc48_reg_id r1;
             tc48_imm imm;
         } ri;
         struct {
-            tc48_regid r1;
+            tc48_reg_id r1;
             tc48_addr addr;
         } ra;
         struct {
-            tc48_regid r1;
-            tc48_regid r2;
+            tc48_reg_id r1;
+            tc48_reg_id r2;
             tc48_addr addr;
         } rra;
     } operands;

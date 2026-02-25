@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tc48/cpu/regs.h>
+
 #include <stdint.h>
 
 struct tc48_system;
@@ -7,6 +9,8 @@ typedef struct tc48_system tc48_system;
 
 typedef struct tc48_cpu {
     tc48_system* sys;
+
+    tc48_cpu_regs regs;
 } tc48_cpu;
 
 void tc48_cpu_init(tc48_cpu* cpu);
