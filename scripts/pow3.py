@@ -1,4 +1,4 @@
-import sys
+#!/usr/bin/env python
 
 def main() -> int:
     n: int = 40 
@@ -10,7 +10,7 @@ def main() -> int:
     content.append("const uint64_t tc48_pow3[TC48_MAX_SAFE_TRITS] = {")
     
     p = 1
-    for i in range(n):
+    for _ in range(n):
         content.append(f"    {p}ULL,")
         p *= 3
     
