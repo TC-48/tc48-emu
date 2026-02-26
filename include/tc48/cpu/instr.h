@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tc48/cpu/reg.h>
+#include <tc48/cpu/imm.h>
 
 #include <tc48/word.h>
 
@@ -15,13 +16,6 @@
 #define TC48_OPERAND_WIDTH_12 TC48_DOUBLET(0, 1)
 #define TC48_OPERAND_WIDTH_24 TC48_DOUBLET(0, 2)
 #define TC48_OPERAND_WIDTH_48 TC48_DOUBLET(1, 0)
-
-typedef union tc48_imm {
-    tc48_tryte i6;
-    tc48_quarter i12;
-    tc48_half i24;
-    tc48_word i48;
-} tc48_imm;
 
 typedef struct tc48_instr {
     tc48_doublet format;
