@@ -44,34 +44,7 @@ typedef tc48_word tc48_addr;
 #define _TC48_TL(t, n) (((uint64_t)(t) & 1ULL) << (n))
 #define _TC48_TH(t, n) (((uint64_t)(t) >> 1ULL) << (n))
 
-#define TC48_DOUBLET(t1, t0) ((tc48_doublet){       \
-    (uint8_t)(_TC48_TL(t1, 1) | _TC48_TL(t0, 0)),   \
-    (uint8_t)(_TC48_TH(t1, 1) | _TC48_TH(t0, 0))    \
-})
-
-#define TC48_TRIPLET(t2, t1, t0) ((tc48_triplet){                   \
-    (uint8_t)(_TC48_TL(t2, 2) | _TC48_TL(t1, 1) | _TC48_TL(t0, 0)), \
-    (uint8_t)(_TC48_TH(t2, 2) | _TC48_TH(t1, 1) | _TC48_TH(t0, 0))  \
-})
-
-#define TC48_QUADRUPLET(t3, t2, t1, t0) ((tc48_quadruplet){                             \
-    (uint8_t)(_TC48_TL(t3, 3) | _TC48_TL(t2, 2) | _TC48_TL(t1, 1) | _TC48_TL(t0, 0)),   \
-    (uint8_t)(_TC48_TH(t3, 3) | _TC48_TH(t2, 2) | _TC48_TH(t1, 1) | _TC48_TH(t0, 0))    \
-})
-
-#define TC48_TRYTE(t5, t4, t3, t2, t1, t0) ((tc48_tryte){                                                                   \
-    (uint8_t)(_TC48_TL(t5, 5) | _TC48_TL(t4, 4) | _TC48_TL(t3, 3) | _TC48_TL(t2, 2) | _TC48_TL(t1, 1) | _TC48_TL(t0, 0)),   \
-    (uint8_t)(_TC48_TH(t5, 5) | _TC48_TH(t4, 4) | _TC48_TH(t3, 3) | _TC48_TH(t2, 2) | _TC48_TH(t1, 1) | _TC48_TH(t0, 0))    \
-})
-
-#define TC48_QUARTER(t11, t10, t9, t8, t7, t6, t5, t4, t3, t2, t1, t0) ((tc48_quarter){     \
-    (uint16_t)(_TC48_TL(t11, 11) | _TC48_TL(t10, 10) | _TC48_TL(t9, 9) | _TC48_TL(t8, 8) |  \
-               _TC48_TL(t7, 7) | _TC48_TL(t6, 6) | _TC48_TL(t5, 5) | _TC48_TL(t4, 4) |      \
-               _TC48_TL(t3, 3) | _TC48_TL(t2, 2) | _TC48_TL(t1, 1) | _TC48_TL(t0, 0)),      \
-    (uint16_t)(_TC48_TH(t11, 11) | _TC48_TH(t10, 10) | _TC48_TH(t9, 9) | _TC48_TH(t8, 8) |  \
-               _TC48_TH(t7, 7) | _TC48_TH(t6, 6) | _TC48_TH(t5, 5) | _TC48_TH(t4, 4) |      \
-               _TC48_TH(t3, 3) | _TC48_TH(t2, 2) | _TC48_TH(t1, 1) | _TC48_TH(t0, 0))       \
-})
+#include <tc48/gen/word-lits.h>
 
 #define TC48_GEN_WORD_UTILS(name, type, bits, mask)                                                 \
    static inline tc48_trit_state tc48_##name##_get_trit(tc48_##name w, int n) {                     \

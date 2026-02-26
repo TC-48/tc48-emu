@@ -57,4 +57,5 @@ dkms.conf
 build/
 out/
 
-src/pow3.c
+src/tc48/gen/*
+include/tc48/gen/*

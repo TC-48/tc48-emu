@@ -28,7 +28,7 @@ ifeq ($(PLATFORM),windows)
 else ifeq ($(PLATFORM),posix)
 	EXE_EXT := .elf
 endif
-TARGET := $(BIN_DIR)/elc$(EXE_EXT)
+TARGET := $(BIN_DIR)/tc48-emu$(EXE_EXT)
 
 CSTD     := -std=c11
 WARNINGS := -Wall -Wextra
@@ -60,7 +60,7 @@ else
 	ALL_C_SRCS := $(shell powershell -NoProfile -Command "Get-ChildItem -Path '$(SRC_DIR)' -Recurse -Include *.c | ForEach-Object { $_.FullName -replace '\\\\','/' }")
 endif
 
-MAIN_C_SRC := $(SRC_DIR)/main.c
+MAIN_C_SRC := $(SRC_DIR)/tc48/main.c
 LIB_C_SRCS := $(filter $(SRC_DIR)/%, $(filter-out $(MAIN_C_SRC), $(ALL_C_SRCS)))
 
 MAIN_OBJ := $(patsubst %.c,$(OBJ_ROOT_DIR)/%.o,$(MAIN_C_SRC))
@@ -75,24 +75,22 @@ ifeq ($(JFLAG),)
 	JFLAG := -j1
 endif
 
-POW3_PY := scripts/pow3.py
-POW3_C  := $(SRC_DIR)/pow3.c
+GENERATED_FILES := src/tc48/gen/pow3.c include/tc48/gen/word-lits.h
+
+src/tc48/gen/pow3.c: scripts/pow3.py
+include/tc48/gen/word-lits.h: scripts/gen-word-lits.py
+
+$(GENERATED_FILES):
+	@echo "Generating $@..."
+	@python3 $< > $@
 
 .PHONY: all dirs clean run tests sharedlib
 
-all: dirs $(POW3_C) $(TARGET) $(LIB_STATIC) $(LIB_SHARED) $(TEST_BIN)
+all: dirs $(GENERATED_FILES) $(TARGET) $(LIB_STATIC) $(LIB_SHARED)
 
 dirs:
 	@$(call CMD_MKDIR_P,$(LIB_DIR))
 	@$(call CMD_MKDIR_P,$(BIN_DIR))
-	@$(call CMD_MKDIR_P,$(OBJ_ROOT_DIR))
-	@$(call CMD_MKDIR_P,$(DEP_ROOT_DIR))
-	@$(call CMD_MKDIR_P,$(OBJ_ROOT_DIR)/shared)
-	@$(call CMD_MKDIR_P,$(DEP_ROOT_DIR)/shared)
-
-$(POW3_C): $(POW3_PY)
-	@echo "Generating $@..."
-	@python3 $(POW3_PY) > $@
 
 $(LIB_STATIC): $(LIB_OBJ_STATIC)
 	ar rcs $@ $^
