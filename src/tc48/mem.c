@@ -7,7 +7,7 @@
 static inline size_t addr_to_idx(tc48_addr a) {
     size_t i = 0;
     for (int j = 0; j < TC48_MAX_SAFE_TRITS; j++) {
-        uint8_t t = ((a.l >> j) & 1) | (((a.h >> j) & 1) << 1);
+        tc48_u8b t = ((a.l >> j) & 1) | (((a.h >> j) & 1) << 1);
         if (t) i += t * tc48_pow3[j];
     }
     return i;
@@ -17,8 +17,8 @@ static inline tc48_word idx_to_addr(size_t i) {
     tc48_word a = { 0, 0 };
     for (int j = 0; i > 0 && j < TC48_MAX_SAFE_TRITS; j++, i /= 3) {
         size_t r = i % 3;
-        a.l |= (uint64_t) (r & 1) << j;
-        a.h |= (uint64_t) (r >> 1) << j;
+        a.l |= (tc48_u64b) (r & 1) << j;
+        a.h |= (tc48_u64b) (r >> 1) << j;
     }
     return a;
 }
@@ -49,8 +49,8 @@ tc48_tryte tc48_mem_load6(tc48_memory* mem, tc48_addr addr) {
 tc48_quarter tc48_mem_load12(tc48_memory* mem, tc48_addr addr) {
     size_t idx = addr_to_idx(addr);
     tc48_quarter q = {0, 0};
-    q.l = mem->data[idx].l | ((uint16_t)mem->data[idx + 1].l << 6);
-    q.h = mem->data[idx].h | ((uint16_t)mem->data[idx + 1].h << 6);
+    q.l = mem->data[idx].l | ((tc48_u16b)mem->data[idx + 1].l << 6);
+    q.h = mem->data[idx].h | ((tc48_u16b)mem->data[idx + 1].h << 6);
     return q;
 }
 
@@ -58,8 +58,8 @@ tc48_half tc48_mem_load24(tc48_memory* mem, tc48_addr addr) {
     size_t idx = addr_to_idx(addr);
     tc48_half h = {0, 0};
     for (int i = 0; i < 4; i++) {
-        h.l |= (uint32_t)mem->data[idx + i].l << (i * 6);
-        h.h |= (uint32_t)mem->data[idx + i].h << (i * 6);
+        h.l |= (tc48_u32b)mem->data[idx + i].l << (i * 6);
+        h.h |= (tc48_u32b)mem->data[idx + i].h << (i * 6);
     }
     return h;
 }
@@ -68,8 +68,8 @@ tc48_word tc48_mem_load48(tc48_memory* mem, tc48_addr addr) {
     size_t idx = addr_to_idx(addr);
     tc48_word w = {0, 0};
     for (int i = 0; i < 8; i++) {
-        w.l |= (uint64_t) mem->data[idx + i].l << (i * 6);
-        w.h |= (uint64_t) mem->data[idx + i].h << (i * 6);
+        w.l |= (tc48_u64b) mem->data[idx + i].l << (i * 6);
+        w.h |= (tc48_u64b) mem->data[idx + i].h << (i * 6);
     }
     return w;
 }

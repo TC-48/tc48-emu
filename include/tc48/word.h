@@ -1,15 +1,17 @@
 #pragma once
 
 #include <stdint.h>
-#include "tc48/trit.h"
 
-typedef struct tc48_doublet    { uint8_t  l, h; } tc48_doublet;      /// 2 trits
-typedef struct tc48_triplet    { uint8_t  l, h; } tc48_triplet;      /// 3 trits
-typedef struct tc48_quadruplet { uint8_t  l, h; } tc48_quadruplet;   /// 4 trits
-typedef struct tc48_tryte      { uint8_t  l, h; } tc48_tryte;        /// 6 trits
-typedef struct tc48_quarter    { uint16_t l, h; } tc48_quarter;      /// 12 trits
-typedef struct tc48_half       { uint32_t l, h; } tc48_half;         /// 24 trits
-typedef struct tc48_word       { uint64_t l, h; } tc48_word;         /// 48 trits
+#include <tc48/trit.h>
+#include <tc48/defs.h>
+
+typedef struct tc48_doublet    { tc48_u8b  l, h; } tc48_doublet;      /// 2 trits
+typedef struct tc48_triplet    { tc48_u8b  l, h; } tc48_triplet;      /// 3 trits
+typedef struct tc48_quadruplet { tc48_u8b  l, h; } tc48_quadruplet;   /// 4 trits
+typedef struct tc48_tryte      { tc48_u8b  l, h; } tc48_tryte;        /// 6 trits
+typedef struct tc48_quarter    { tc48_u16b l, h; } tc48_quarter;      /// 12 trits
+typedef struct tc48_half       { tc48_u32b l, h; } tc48_half;         /// 24 trits
+typedef struct tc48_word       { tc48_u64b l, h; } tc48_word;         /// 48 trits
 
 typedef tc48_word tc48_addr;
 
@@ -41,8 +43,8 @@ typedef tc48_word tc48_addr;
 #define TC48_WORD_VALUES       ((tc48_word){0x25C56DAFFABC35C1ULL, 0x10E4ULL}) /* 3^48 */
 
 /* Literal helpers (trit-by-trit notation, MSB-first) */
-#define _TC48_TL(t, n) (((uint64_t)(t) & 1ULL) << (n))
-#define _TC48_TH(t, n) (((uint64_t)(t) >> 1ULL) << (n))
+#define _TC48_TL(t, n) (((tc48_u64)(t) & 1ULL) << (n))
+#define _TC48_TH(t, n) (((tc48_u64)(t) >> 1ULL) << (n))
 
 #include <tc48/gen/word-lits.h>
 
@@ -68,12 +70,12 @@ typedef tc48_word tc48_addr;
        return res;                                                                                  \
    }
 
-TC48_GEN_WORD_UTILS(doublet,    uint8_t,   2,  TC48_DOUBLET_MASK)
-TC48_GEN_WORD_UTILS(triplet,    uint8_t,   3,  TC48_TRIPLET_MASK)
-TC48_GEN_WORD_UTILS(quadruplet, uint8_t,   4,  TC48_QUADRUPLET_MASK)
-TC48_GEN_WORD_UTILS(tryte,      uint8_t,   6,  TC48_TRYTE_MASK)
-TC48_GEN_WORD_UTILS(quarter,    uint16_t,  12, TC48_QUARTER_MASK)
-TC48_GEN_WORD_UTILS(half,       uint32_t,  24, TC48_HALF_MASK)
-TC48_GEN_WORD_UTILS(word,       uint64_t,  48, TC48_WORD_MASK)
+TC48_GEN_WORD_UTILS(doublet,    tc48_u8b,   2,  TC48_DOUBLET_MASK)
+TC48_GEN_WORD_UTILS(triplet,    tc48_u8b,   3,  TC48_TRIPLET_MASK)
+TC48_GEN_WORD_UTILS(quadruplet, tc48_u8b,   4,  TC48_QUADRUPLET_MASK)
+TC48_GEN_WORD_UTILS(tryte,      tc48_u8b,   6,  TC48_TRYTE_MASK)
+TC48_GEN_WORD_UTILS(quarter,    tc48_u16b,  12, TC48_QUARTER_MASK)
+TC48_GEN_WORD_UTILS(half,       tc48_u32b,  24, TC48_HALF_MASK)
+TC48_GEN_WORD_UTILS(word,       tc48_u64b,  48, TC48_WORD_MASK)
 
 #undef TC48_GEN_WORD_UTILS

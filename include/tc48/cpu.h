@@ -1,6 +1,9 @@
 #pragma once
 
+#include <tc48/cpu/instr.h>
 #include <tc48/cpu/regs.h>
+
+#include <tc48/defs.h>
 
 #include <stdint.h>
 
@@ -18,4 +21,4 @@ void tc48_cpu_deinit(tc48_cpu* cpu);
 
 void tc48_cpu_reset(tc48_cpu* cpu);
 void tc48_cpu_step(tc48_cpu* cpu);
-void tc48_cpu_run(tc48_cpu* cpu, uint64_t cycles);
+void tc48_cpu_run(tc48_cpu* cpu, tc48_u64b cycles);

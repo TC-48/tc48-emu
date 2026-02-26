@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tc48/word.h>
+#include <tc48/defs.h>
 
 #include <stddef.h>
 #include <stdint.h>
