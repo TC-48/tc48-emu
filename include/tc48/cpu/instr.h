@@ -19,8 +19,9 @@
 
 typedef struct tc48_instr {
     tc48_doublet format;
-    tc48_tryte opcode;
     tc48_doublet width;
+    // 2 trits padding
+    tc48_tryte opcode;
     union {
         struct {
             tc48_reg_id r1;
