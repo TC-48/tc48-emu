@@ -43,8 +43,8 @@ typedef tc48_word tc48_addr;
 #define TC48_WORD_VALUES       ((tc48_word){0x25C56DAFFABC35C1ULL, 0x10E4ULL}) /* 3^48 */
 
 /* Literal helpers (trit-by-trit notation, MSB-first) */
-#define _TC48_TL(t, n) (((tc48_u64)(t) & 1ULL) << (n))
-#define _TC48_TH(t, n) (((tc48_u64)(t) >> 1ULL) << (n))
+#define _TC48_TL(t, n) (((tc48_u64b)(t) & 1ULL) << (n))
+#define _TC48_TH(t, n) (((tc48_u64b)(t) >> 1ULL) << (n))
 
 #include <tc48/gen/word-lits.h>
 

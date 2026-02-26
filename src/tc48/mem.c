@@ -6,16 +6,16 @@
 
 static inline size_t addr_to_idx(tc48_addr a) {
     size_t i = 0;
-    for (int j = 0; j < TC48_MAX_SAFE_TRITS; j++) {
+    for (int j = 0; j < TC48_MAX_SAFE_TRITS_U64; j++) {
         tc48_u8b t = ((a.l >> j) & 1) | (((a.h >> j) & 1) << 1);
-        if (t) i += t * tc48_pow3[j];
+        if (t) i += t * tc48_pow3_u64[j];
     }
     return i;
 }
 
 static inline tc48_word idx_to_addr(size_t i) {
     tc48_word a = { 0, 0 };
-    for (int j = 0; i > 0 && j < TC48_MAX_SAFE_TRITS; j++, i /= 3) {
+    for (int j = 0; i > 0 && j < TC48_MAX_SAFE_TRITS_U64; j++, i /= 3) {
         size_t r = i % 3;
         a.l |= (tc48_u64b) (r & 1) << j;
         a.h |= (tc48_u64b) (r >> 1) << j;
