@@ -10,6 +10,8 @@
 #define TC48_CPU_REGS_COUNT \
     1 /* program counter */ + TC48_CPU_GPR_COUNT
 
+#define TC48_CPU_REG_PC TC48_QUADRUPLET(0, 0, 0, 0)
+
 typedef struct tc48_cpu_regs {
     tc48_word data[TC48_CPU_REGS_COUNT];
 } tc48_cpu_regs;

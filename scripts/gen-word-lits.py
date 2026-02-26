@@ -54,13 +54,13 @@ def main():
     print()
 
     types = [
-        ("doublet", 2, "tc48_doublet", "tc48_u8"),
-        ("triplet", 3, "tc48_triplet", "tc48_u8"),
-        ("quadruplet", 4, "tc48_quadruplet", "tc48_u8"),
-        ("tryte", 6, "tc48_tryte", "tc48_u8"),
-        ("quarter", 12, "tc48_quarter", "tc48_u16"),
-        ("half", 24, "tc48_half", "tc48_u32"),
-        ("word", 48, "tc48_word", "tc48_u64"),
+        ("doublet", 2, "tc48_doublet", "tc48_u8b"),
+        ("triplet", 3, "tc48_triplet", "tc48_u8b"),
+        ("quadruplet", 4, "tc48_quadruplet", "tc48_u8b"),
+        ("tryte", 6, "tc48_tryte", "tc48_u8b"),
+        ("quarter", 12, "tc48_quarter", "tc48_u16b"),
+        ("half", 24, "tc48_half", "tc48_u32b"),
+        ("word", 48, "tc48_word", "tc48_u64b"),
     ]
 
     for name, bits, struct_type, c_type in types:
