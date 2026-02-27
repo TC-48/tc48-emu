@@ -60,6 +60,10 @@ else
 	ALL_C_SRCS := $(shell powershell -NoProfile -Command "Get-ChildItem -Path '$(SRC_DIR)' -Recurse -Include *.c | ForEach-Object { $_.FullName -replace '\\\\','/' }")
 endif
 
+GENERATED_FILES := src/tc48/gen/pow3.c include/tc48/gen/word-lits.h include/tc48/gen/version.h
+GENERATED_C_SRCS := $(filter %.c, $(GENERATED_FILES))
+ALL_C_SRCS := $(sort $(ALL_C_SRCS) $(GENERATED_C_SRCS))
+
 MAIN_C_SRC := $(SRC_DIR)/tc48/main.c
 LIB_C_SRCS := $(filter $(SRC_DIR)/%, $(filter-out $(MAIN_C_SRC), $(ALL_C_SRCS)))
 
@@ -75,17 +79,17 @@ ifeq ($(JFLAG),)
 	JFLAG := -j1
 endif
 
-GENERATED_FILES := src/tc48/gen/pow3.c include/tc48/gen/word-lits.h
-
 .PHONY: all dirs clean run tests sharedlib
 
 all: dirs $(GENERATED_FILES) $(TARGET) $(LIB_STATIC) $(LIB_SHARED) tests
 
-src/tc48/gen/pow3.c: scripts/pow3.py
-include/tc48/gen/word-lits.h: scripts/gen-word-lits.py
+src/tc48/gen/pow3.c: scripts/gen/pow3.py
+include/tc48/gen/word-lits.h: scripts/gen/word-lits.py
+include/tc48/gen/version.h: scripts/gen/version.py
 
 $(GENERATED_FILES):
 	@echo "Generating $@..."
+	@$(call CMD_MKDIR_P,$(dir $@))
 	@python3 $< > $@
 
 dirs:
@@ -123,3 +127,5 @@ include tests/Tests.mk
 clean:
 	@$(call CMD_RM_RF,build)
 	@$(call CMD_RM_RF,out)
+	@$(call CMD_RM_RF,src/tc48/gen)
+	@$(call CMD_RM_RF,include/tc48/gen)
