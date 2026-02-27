@@ -96,13 +96,13 @@ dirs:
 	@$(call CMD_MKDIR_P,$(LIB_DIR))
 	@$(call CMD_MKDIR_P,$(BIN_DIR))
 
-$(LIB_STATIC): $(LIB_OBJ_STATIC)
+$(LIB_STATIC): $(LIB_OBJ_STATIC) | dirs
 	ar rcs $@ $^
 
-$(LIB_SHARED): $(LIB_OBJ_SHARED)
+$(LIB_SHARED): $(LIB_OBJ_SHARED) | dirs
 	$(CC) -shared $^ $(LDFLAGS) -o $@
 
-$(TARGET): $(LIB_STATIC) $(MAIN_OBJ)
+$(TARGET): $(LIB_STATIC) $(MAIN_OBJ) | dirs
 	$(CC) $(MAIN_OBJ) $(LIB_STATIC) $(LDFLAGS) -o $@
 
 $(OBJ_ROOT_DIR)/%.o: %.c
