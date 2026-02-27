@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
 
 def gen_macro(name, bits, struct_type, c_type):
-    # MSB-first in arguments
     args = [f"t{i}" for i in range(bits-1, -1, -1)]
     arg_list = ", ".join(args)
 
     def format_component(prefix, bits, c_type):
-        # trits are passed in MSB-first order (tN, ..., t0)
-        # but the macro should probably maintain the same order for the OR operations
-        # The original code used: _TC48_TL(t11, 11) | _TC48_TL(t10, 10) ... | _TC48_TL(t0, 0)
         parts = [f"{prefix}(t{i}, {i})" for i in range(bits - 1, -1, -1)]
 
         parts_per_line = 4
@@ -45,6 +41,8 @@ def gen_macro(name, bits, struct_type, c_type):
     res += f"    {l_comp}, \\\n"
     res += f"    {h_comp}  \\\n"
     res += "})"
+    res += "\n"
+    res += f"#define TC48_{name.upper()}_ZERO (({struct_type}) {{ .l = 0, .h = 0 }})"
     return res
 
 def main():
