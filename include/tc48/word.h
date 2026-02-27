@@ -4,6 +4,7 @@
 
 #include <tc48/trit.h>
 #include <tc48/defs.h>
+#include <tc48/pow3.h>
 
 typedef struct tc48_doublet    { tc48_u8b  l, h; } tc48_doublet;      /// 2 trits
 typedef struct tc48_triplet    { tc48_u8b  l, h; } tc48_triplet;      /// 3 trits
@@ -48,7 +49,7 @@ typedef tc48_word tc48_addr;
 
 #include <tc48/gen/word-lits.h>
 
-#define TC48_GEN_WORD_UTILS(NAME, TYPE, BITS, MASK)                                                     \
+#define TC48_GEN_WORD_UTILS(NAME, TYPE, BITS, MASK, VALUES, U_BIN, I_BIN, SUFFIX, POW_TABLE)            \
    static inline tc48_trit_state tc48_##NAME##_get_trit(tc48_##NAME w, int n) {                         \
        return (tc48_trit_state)(((w.l >> (unsigned) n) & 1U) | (((w.h >> (unsigned) n) & 1U) << 1U));   \
    }                                                                                                    \
@@ -68,14 +69,27 @@ typedef tc48_word tc48_addr;
            res.h = (TYPE) ((w.h >> (unsigned) -count) & (MASK));                                        \
        }                                                                                                \
        return res;                                                                                      \
+   }                                                                                                    \
+   static inline U_BIN tc48_##NAME##_to_u##SUFFIX(tc48_##NAME w) {                                      \
+       U_BIN res = 0;                                                                                   \
+       for (int i = 0; i < BITS; ++i) {                                                                 \
+           res += (U_BIN)tc48_##NAME##_get_trit(w, i) * (U_BIN)POW_TABLE[i];                             \
+       }                                                                                                \
+       return res;                                                                                      \
+   }                                                                                                    \
+   static inline I_BIN tc48_##NAME##_to_i##SUFFIX(tc48_##NAME w) {                                      \
+       U_BIN u = tc48_##NAME##_to_u##SUFFIX(w);                                                         \
+       U_BIN limit = (U_BIN)(VALUES) / 2;                                                               \
+       if (u > limit) return (I_BIN)(u - (U_BIN)(VALUES));                                              \
+       return (I_BIN)u;                                                                                 \
    }
 
-TC48_GEN_WORD_UTILS(doublet,    tc48_u8b,   2,  TC48_DOUBLET_MASK)
-TC48_GEN_WORD_UTILS(triplet,    tc48_u8b,   3,  TC48_TRIPLET_MASK)
-TC48_GEN_WORD_UTILS(quadruplet, tc48_u8b,   4,  TC48_QUADRUPLET_MASK)
-TC48_GEN_WORD_UTILS(tryte,      tc48_u8b,   6,  TC48_TRYTE_MASK)
-TC48_GEN_WORD_UTILS(quarter,    tc48_u16b,  12, TC48_QUARTER_MASK)
-TC48_GEN_WORD_UTILS(half,       tc48_u32b,  24, TC48_HALF_MASK)
-TC48_GEN_WORD_UTILS(word,       tc48_u64b,  48, TC48_WORD_MASK)
+TC48_GEN_WORD_UTILS(doublet,    tc48_u8b,   2,  TC48_DOUBLET_MASK,    TC48_DOUBLET_VALUES,    tc48_u8b,   tc48_i8b,   8b,   tc48_pow3_u32)
+TC48_GEN_WORD_UTILS(triplet,    tc48_u8b,   3,  TC48_TRIPLET_MASK,    TC48_TRIPLET_VALUES,    tc48_u8b,   tc48_i8b,   8b,   tc48_pow3_u32)
+TC48_GEN_WORD_UTILS(quadruplet, tc48_u8b,   4,  TC48_QUADRUPLET_MASK, TC48_QUADRUPLET_VALUES, tc48_u8b,   tc48_i8b,   8b,   tc48_pow3_u32)
+TC48_GEN_WORD_UTILS(tryte,      tc48_u8b,   6,  TC48_TRYTE_MASK,      TC48_TRYTE_VALUES,      tc48_u16b,  tc48_i16b,  16b,  tc48_pow3_u32)
+TC48_GEN_WORD_UTILS(quarter,    tc48_u16b,  12, TC48_QUARTER_MASK,    TC48_QUARTER_VALUES,    tc48_u32b,  tc48_i32b,  32b,  tc48_pow3_u32)
+TC48_GEN_WORD_UTILS(half,       tc48_u32b,  24, TC48_HALF_MASK,       TC48_HALF_VALUES,       tc48_u64b,  tc48_i64b,  64b,  tc48_pow3_u64)
+TC48_GEN_WORD_UTILS(word,       tc48_u64b,  48, TC48_WORD_MASK,       TC48_WORD_VALUES,       tc48_u128b, tc48_i128b, 128b, tc48_pow3_u128)
 
 #undef TC48_GEN_WORD_UTILS
