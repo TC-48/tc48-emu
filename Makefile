@@ -77,16 +77,16 @@ endif
 
 GENERATED_FILES := src/tc48/gen/pow3.c include/tc48/gen/word-lits.h
 
+.PHONY: all dirs clean run tests sharedlib
+
+all: dirs $(GENERATED_FILES) $(TARGET) $(LIB_STATIC) $(LIB_SHARED) tests
+
 src/tc48/gen/pow3.c: scripts/pow3.py
 include/tc48/gen/word-lits.h: scripts/gen-word-lits.py
 
 $(GENERATED_FILES):
 	@echo "Generating $@..."
 	@python3 $< > $@
-
-.PHONY: all dirs clean run tests sharedlib
-
-all: dirs $(GENERATED_FILES) $(TARGET) $(LIB_STATIC) $(LIB_SHARED)
 
 dirs:
 	@$(call CMD_MKDIR_P,$(LIB_DIR))
@@ -115,6 +115,8 @@ run: all
 	$(TARGET)
 
 sharedlib: dirs $(LIB_SHARED)
+
+include tests/Tests.mk
 
 -include $(DEPS)
 
