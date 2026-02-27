@@ -24,3 +24,26 @@ tc48_tryte   tc48_cpu_read_reg6 (tc48_cpu_regs* regs, tc48_reg_id r);
 tc48_quarter tc48_cpu_read_reg12(tc48_cpu_regs* regs, tc48_reg_id r);
 tc48_half    tc48_cpu_read_reg24(tc48_cpu_regs* regs, tc48_reg_id r);
 tc48_word    tc48_cpu_read_reg48(tc48_cpu_regs* regs, tc48_reg_id r);
+
+#define TC48_CPU_REG_ALU_DECL_TYPE(type) \
+    void tc48_cpu_add_##type##_reg (tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
+    void tc48_cpu_sub_##type##_reg (tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
+    void tc48_cpu_mul_##type##_reg (tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
+    void tc48_cpu_div_##type##_reg (tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
+    void tc48_cpu_mod_##type##_reg (tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
+    void tc48_cpu_sadd_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
+    void tc48_cpu_ssub_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
+    void tc48_cpu_smul_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
+    void tc48_cpu_sdiv_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
+    void tc48_cpu_smod_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2);
+
+TC48_CPU_REG_ALU_DECL_TYPE(doublet)
+TC48_CPU_REG_ALU_DECL_TYPE(triplet)
+TC48_CPU_REG_ALU_DECL_TYPE(quadruplet)
+TC48_CPU_REG_ALU_DECL_TYPE(tryte)
+TC48_CPU_REG_ALU_DECL_TYPE(quarter)
+TC48_CPU_REG_ALU_DECL_TYPE(half)
+TC48_CPU_REG_ALU_DECL_TYPE(word)
+
+#undef TC48_CPU_REG_ALU_DECL_TYPE
+
