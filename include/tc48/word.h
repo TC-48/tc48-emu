@@ -48,26 +48,26 @@ typedef tc48_word tc48_addr;
 
 #include <tc48/gen/word-lits.h>
 
-#define TC48_GEN_WORD_UTILS(name, type, bits, mask)                                                 \
-   static inline tc48_trit_state tc48_##name##_get_trit(tc48_##name w, int n) {                     \
-       return (tc48_trit_state)(((w.l >> (unsigned)n) & 1U) | (((w.h >> (unsigned)n) & 1U) << 1U)); \
-   }                                                                                                \
-   static inline void tc48_##name##_set_trit(tc48_##name *w, int n, tc48_trit_state t) {            \
-       w->l = (type)((w->l & ~((type)1 << (unsigned)n)) | (((type)t & 1U) << (unsigned)n));         \
-       w->h = (type)((w->h & ~((type)1 << (unsigned)n)) | ((((type)t >> 1U) & 1U) << (unsigned)n)); \
-   }                                                                                                \
-   static inline tc48_##name tc48_##name##_shift(tc48_##name w, int count) {                        \
-       tc48_##name res;                                                                             \
-       if (count >= bits || count <= -bits) {                                                       \
-           res.l = 0; res.h = 0;                                                                    \
-       } else if (count >= 0) {                                                                     \
-           res.l = (type)((w.l << (unsigned)count) & (mask));                                       \
-           res.h = (type)((w.h << (unsigned)count) & (mask));                                       \
-       } else {                                                                                     \
-           res.l = (type)((w.l >> (unsigned)-count) & (mask));                                      \
-           res.h = (type)((w.h >> (unsigned)-count) & (mask));                                      \
-       }                                                                                            \
-       return res;                                                                                  \
+#define TC48_GEN_WORD_UTILS(NAME, TYPE, BITS, MASK)                                                     \
+   static inline tc48_trit_state tc48_##NAME##_get_trit(tc48_##NAME w, int n) {                         \
+       return (tc48_trit_state)(((w.l >> (unsigned) n) & 1U) | (((w.h >> (unsigned) n) & 1U) << 1U));   \
+   }                                                                                                    \
+   static inline void tc48_##NAME##_set_trit(tc48_##NAME *w, int n, tc48_trit_state t) {                \
+       w->l = (TYPE)((w->l & ~((TYPE)1 << (unsigned) n)) | (((TYPE)t & 1U) << (unsigned) n));           \
+       w->h = (TYPE)((w->h & ~((TYPE)1 << (unsigned) n)) | ((((TYPE)t >> 1U) & 1U) << (unsigned) n));   \
+   }                                                                                                    \
+   static inline tc48_##NAME tc48_##NAME##_shift(tc48_##NAME w, int count) {                            \
+       tc48_##NAME res;                                                                                 \
+       if (count >= BITS || count <= -BITS) {                                                           \
+           res.l = 0; res.h = 0;                                                                        \
+       } else if (count >= 0) {                                                                         \
+           res.l = (TYPE) ((w.l << (unsigned) count) & (MASK));                                         \
+           res.h = (TYPE) ((w.h << (unsigned) count) & (MASK));                                         \
+       } else {                                                                                         \
+           res.l = (TYPE) ((w.l >> (unsigned) -count) & (MASK));                                        \
+           res.h = (TYPE) ((w.h >> (unsigned) -count) & (MASK));                                        \
+       }                                                                                                \
+       return res;                                                                                      \
    }
 
 TC48_GEN_WORD_UTILS(doublet,    tc48_u8b,   2,  TC48_DOUBLET_MASK)
