@@ -12,13 +12,13 @@ $(TEST_OBJS): $(GENERATED_FILES)
 .PHONY: tests build-tests
 
 tests: $(TARGET) $(LIB_STATIC) build-tests
-	@echo "Linking $@..."
 	$(TEST_BIN)
 
 build-tests: $(TEST_BIN)
 
 $(TEST_BIN): $(TEST_OBJS) $(LIB_STATIC)
 	@$(call CMD_MKDIR_P,$(dir $@))
+	@echo "Linking $@..."
 	$(CC) $(TEST_OBJS) $(LIB_STATIC) $(LDFLAGS) -lcriterion -o $@
 
 DEPS += $(patsubst %.c,$(DEP_ROOT_DIR)/%.d,$(TEST_C_SRCS))
