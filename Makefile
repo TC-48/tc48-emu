@@ -115,6 +115,8 @@ $(OBJ_ROOT_DIR)/shared/%.o: %.c
 	@$(call CMD_MKDIR_P,$(DEP_ROOT_DIR)/shared/$(dir $<))
 	$(CC) $(CFLAGS) $(PIC_CFLAGS) -MMD -MP -MF $(DEP_ROOT_DIR)/shared/$*.d -c $< -o $@
 
+$(MAIN_OBJ) $(LIB_OBJ_STATIC) $(LIB_OBJ_SHARED): $(GENERATED_FILES)
+
 run: all
 	$(TARGET)
 
