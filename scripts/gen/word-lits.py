@@ -21,10 +21,11 @@ def gen_macro(name: str, bits: int, struct_type: str, ctype: str) -> list[str]:
             res.append(f"({ctype})({lines[0]} | \\")
             for i in range(1, len(lines)):
                 l = indent + lines[i]
-                if i < len(lines):
+                if i < len(lines) - 1:
                     l += " | \\"
+                else:
+                    l += ")"
                 res.append(l)
-            res.append(')')
             return res
 
     lcomp: str = '\n'.join(format_component("_TC48_TL", bits, ctype))
