@@ -12,6 +12,7 @@ class TritsInfo:
     unsigned_max: int
     signed_min: int
     signed_max: int
+    total_states: int
 
 def trits_info(n: int) -> TritsInfo:
     bits_exact = n * math.log2(3)
@@ -24,7 +25,8 @@ def trits_info(n: int) -> TritsInfo:
         unsigned_min=0,
         unsigned_max=total - 1,
         signed_min=-(total // 2),
-        signed_max=(total + 1) // 2 - 1
+        signed_max=(total + 1) // 2 - 1,
+        total_states=total,
     )
 
 def help():
@@ -65,6 +67,9 @@ def main() -> int:
 
     print('\n-- Signed range (ternary complement):')
     print(f'{info.signed_min} .. {info.signed_max}')
+
+    print('\n-- States:')
+    print(f'{info.total_states} total')
     return 0
 
 if __name__ == '__main__':
