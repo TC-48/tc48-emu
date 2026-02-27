@@ -34,15 +34,15 @@ typedef tc48_word tc48_addr;
 #define TC48_HALF_MASK       0xFFFFFF
 #define TC48_WORD_MASK       0xFFFFFFFFFFFFULL
 
-#define TC48_DOUBLET_VALUES    (9ULL)            /* 3^2  */
-#define TC48_TRIPLET_VALUES    (27ULL)           /* 3^3  */
-#define TC48_QUADRUPLET_VALUES (81ULL)           /* 3^4  */
-#define TC48_TRYTE_VALUES      (729ULL)          /* 3^6  */
-#define TC48_QUARTER_VALUES    (531441ULL)       /* 3^12 */
-#define TC48_HALF_VALUES       (282429536481ULL) /* 3^24 */
-#define TC48_WORD_VALUES       ((tc48_word){0x25C56DAFFABC35C1ULL, 0x10E4ULL}) /* 3^48 */
+#define TC48_DOUBLET_VALUES    (3ULL * 3ULL)                                     /* 3^2  */
+#define TC48_TRIPLET_VALUES    (TC48_DOUBLET_VALUES * 3ULL)                      /* 3^3  */
+#define TC48_QUADRUPLET_VALUES (TC48_TRIPLET_VALUES * 3ULL)                      /* 3^4  */
+#define TC48_TRYTE_VALUES      (TC48_QUADRUPLET_VALUES * 9ULL)                   /* 3^6  */
+#define TC48_QUARTER_VALUES    (TC48_TRYTE_VALUES * TC48_TRYTE_VALUES)           /* 3^12 */
+#define TC48_HALF_VALUES       (TC48_QUARTER_VALUES * TC48_QUARTER_VALUES)       /* 3^24 */
+#define TC48_WORD_VALUES       ((tc48_u128b)TC48_HALF_VALUES * TC48_HALF_VALUES) /* 3^48 */
 
-/* Literal helpers (trit-by-trit notation, MSB-first) */
+// Literal helpers (trit-by-trit notation, MSB-first)
 #define _TC48_TL(t, n) (((tc48_u64b)(t) & 1ULL) << (n))
 #define _TC48_TH(t, n) (((tc48_u64b)(t) >> 1ULL) << (n))
 
