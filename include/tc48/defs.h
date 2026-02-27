@@ -1,3 +1,6 @@
+#pragma once
+
+#include <stddef.h>
 #include <stdint.h>
 
 typedef uint8_t     tc48_u8b;
@@ -10,3 +13,6 @@ typedef uint64_t    tc48_u64b;
 typedef int64_t     tc48_i64b;
 typedef __uint128_t tc48_u128b;
 typedef __int128_t  tc48_i128b;
+
+typedef size_t    tc48_usize;
+typedef ptrdiff_t tc48_isize;
