@@ -1,6 +1,8 @@
 CC ?= cc
 BUILD ?= release
 
+rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
+
 ifeq ($(OS),Windows_NT)
 	PLATFORM := windows
 else
@@ -26,39 +28,36 @@ EXE_EXT :=
 ifeq ($(PLATFORM),windows)
 	EXE_EXT := .exe
 else ifeq ($(PLATFORM),posix)
-	EXE_EXT := .elf
+	EXE_EXT :=
 endif
+
 TARGET := $(BIN_DIR)/tc48-emu$(EXE_EXT)
 
-CSTD     := -std=c11
-WARNINGS := -Wall -Wextra
+CSTD       := -std=c11
+WARNINGS   := -Wall -Wextra
 PIC_CFLAGS := -fPIC
 
 COMMON_CFLAGS := $(CSTD) $(WARNINGS) -I$(INCLUDE_DIR)
 
 ifeq ($(BUILD),debug)
-	CFLAGS := $(COMMON_CFLAGS) -O0 -g -DEL_DEBUG -fsanitize=address,undefined
+	CFLAGS := $(COMMON_CFLAGS) -O0 -g -DTC48_DEBUG -fsanitize=address,undefined
 	LDFLAGS := -fsanitize=address,undefined
 else ifeq ($(BUILD),release)
 	CFLAGS := $(COMMON_CFLAGS) -O3 -DNDEBUG
-	LDFLAGS :=
+	LDFLAGS := -flto
 else
 	$(error Unknown BUILD=$(BUILD))
 endif
 
 ifeq ($(PLATFORM),windows)
 	CMD_MKDIR_P = powershell -NoProfile -Command "New-Item -ItemType Directory -Force -Path '$(subst /,\,$(1))'"
-	CMD_RM_RF = powershell -NoProfile -Command "Remove-Item -Recurse -Force -Path '$(subst /,\,$(1))'"
+	CMD_RM_RF   = powershell -NoProfile -Command "Remove-Item -Recurse -Force -Path '$(subst /,\,$(1))'"
 else
 	CMD_MKDIR_P = mkdir -p "$(1)"
-	CMD_RM_RF = rm -rf "$(1)"
+	CMD_RM_RF   = rm -rf "$(1)"
 endif
 
-ifeq ($(PLATFORM),posix)
-	ALL_C_SRCS := $(shell find $(SRC_DIR) -name "*.c")
-else
-	ALL_C_SRCS := $(shell powershell -NoProfile -Command "Get-ChildItem -Path '$(SRC_DIR)' -Recurse -Include *.c | ForEach-Object { $_.FullName -replace '\\\\','/' }")
-endif
+ALL_C_SRCS := $(call rwildcard,$(SRC_DIR),*.c)
 
 GENERATED_FILES := src/tc48/gen/pow3.c include/tc48/gen/word-lits.h include/tc48/gen/version.h
 GENERATED_C_SRCS := $(filter %.c, $(GENERATED_FILES))
@@ -79,9 +78,9 @@ ifeq ($(JFLAG),)
 	JFLAG := -j1
 endif
 
-.PHONY: all dirs clean run tests sharedlib
+.PHONY: all dirs clean run test sharedlib
 
-all: dirs $(GENERATED_FILES) $(TARGET) $(LIB_STATIC) $(LIB_SHARED) tests
+all: $(GENERATED_FILES) $(TARGET) $(LIB_STATIC) $(LIB_SHARED) test
 
 src/tc48/gen/pow3.c: scripts/gen/pow3.py
 include/tc48/gen/word-lits.h: scripts/gen/word-lits.py
@@ -92,17 +91,16 @@ $(GENERATED_FILES):
 	@$(call CMD_MKDIR_P,$(dir $@))
 	@python3 $< > $@
 
-dirs:
-	@$(call CMD_MKDIR_P,$(LIB_DIR))
-	@$(call CMD_MKDIR_P,$(BIN_DIR))
-
-$(LIB_STATIC): $(LIB_OBJ_STATIC) | dirs
+$(LIB_STATIC): $(LIB_OBJ_STATIC)
+	@$(call CMD_MKDIR_P,$(dir $@))
 	ar rcs $@ $^
 
-$(LIB_SHARED): $(LIB_OBJ_SHARED) | dirs
+$(LIB_SHARED): $(LIB_OBJ_SHARED)
+	@$(call CMD_MKDIR_P,$(dir $@))
 	$(CC) -shared $^ $(LDFLAGS) -o $@
 
-$(TARGET): $(LIB_STATIC) $(MAIN_OBJ) | dirs
+$(TARGET): $(LIB_STATIC) $(MAIN_OBJ)
+	@$(call CMD_MKDIR_P,$(dir $@))
 	$(CC) $(MAIN_OBJ) $(LIB_STATIC) $(LDFLAGS) -o $@
 
 $(OBJ_ROOT_DIR)/%.o: %.c
@@ -120,9 +118,9 @@ $(MAIN_OBJ) $(LIB_OBJ_STATIC) $(LIB_OBJ_SHARED): $(GENERATED_FILES)
 run: all
 	$(TARGET)
 
-sharedlib: dirs $(LIB_SHARED)
+sharedlib: $(LIB_SHARED)
 
-include tests/Tests.mk
+include tests/build.mk
 
 -include $(DEPS)
 
