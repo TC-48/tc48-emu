@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+indent = "    "
+
 def gen_macro(name: str, bits: int, typename: str) -> list[str]:
     args: list[str] = [f"T{i}" for i in range(bits-1, -1, -1)]
     args_str: str = ", ".join(args)
@@ -11,8 +13,8 @@ def gen_macro(name: str, bits: int, typename: str) -> list[str]:
         chunk = parts[i:i+parts_per_line]
         lines.append(" + ".join(chunk))
 
-    macro_start = f"#define TC48_{name.upper()}({args_str}) "
-    cast = f"(({typename})("
+    macro_start = f"#define TC48_{name.upper()}({args_str}) \\\n"
+    cast = f"{indent}(({typename})( \\\n"
     
     res = []
     if len(lines) == 1:
@@ -20,16 +22,13 @@ def gen_macro(name: str, bits: int, typename: str) -> list[str]:
     else:
         res.append(f"{macro_start}{cast}{lines[0]} + \\")
         for i in range(1, len(lines)):
-            l = "    " + lines[i]
+            l = indent*2 + lines[i]
             if i < len(lines) - 1:
                 l += " + \\"
             else:
                 l += "))"
             res.append(l)
     
-    res.append("")
-    res.append(f"#define TC48_{name.upper()}_ZERO (({typename}) 0)")
-    res.append(f"#define TC48_{name.upper()}_EQL(A, B) ((A) == (B))")
     return res
 
 def main() -> int:

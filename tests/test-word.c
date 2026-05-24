@@ -30,13 +30,13 @@ Test(word, NAME##_all) {                                                    \
     tc48_trit_state trits[BITS];                                            \
                                                                             \
     for (int iter = 0; iter < 1000; ++iter) {                               \
-        tc48_##NAME v = TC48_##UNAME##_ZERO;                                \
+        tc48_##NAME v = 0;                                                  \
                                                                             \
         /* set/get */                                                       \
         for (int i = 0; i < BITS; ++i) {                                    \
             trits[i] = rand() % 3;                                          \
             tc48_##NAME##_set_trit(&v, i, trits[i]);                        \
-            cr_assert(tc48_##NAME##_get_trit(v, i) == trits[i]);            \
+            cr_assert_eq(tc48_##NAME##_get_trit(v, i), trits[i]);           \
         }                                                                   \
                                                                             \
         /* to_u / to_i */                                                   \
@@ -49,20 +49,20 @@ Test(word, NAME##_all) {                                                    \
         if (BITS > 1) {                                                     \
             tc48_##NAME shl = tc48_##NAME##_shift(v, 1);                    \
                                                                             \
-            cr_assert(tc48_##NAME##_get_trit(shl, 0) == TC48_ZERO);         \
+            cr_assert_eq(tc48_##NAME##_get_trit(shl, 0), TC48_ZERO);        \
             for (int i = 1; i < BITS; ++i)                                  \
                 cr_assert(tc48_##NAME##_get_trit(shl, i) == trits[i - 1]);  \
                                                                             \
             tc48_##NAME shr = tc48_##NAME##_shift(v, -1);                   \
                                                                             \
-            cr_assert(tc48_##NAME##_get_trit(shr, BITS - 1) == TC48_ZERO);  \
+            cr_assert_eq(tc48_##NAME##_get_trit(shr, BITS - 1), TC48_ZERO); \
             for (int i = 0; i < BITS - 1; ++i)                              \
                 cr_assert(tc48_##NAME##_get_trit(shr, i) == trits[i + 1]);  \
         }                                                                   \
                                                                             \
         /* overflow shift */                                                \
         tc48_##NAME out = tc48_##NAME##_shift(v, BITS);                     \
-        cr_assert(TC48_##UNAME##_EQL(out, TC48_##UNAME##_ZERO));            \
+        cr_assert_eq(out, 0);                                               \
     }                                                                       \
 }
 

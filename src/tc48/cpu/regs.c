@@ -32,24 +32,24 @@ GEN_ACCESSORS(half,       tc48_half,       24, TC48_HALF_VALUES)
 GEN_ACCESSORS(word,       tc48_word,       48, TC48_WORD_VALUES)
 
 void tc48_cpu_set_reg_imm(tc48_cpu_regs* regs, tc48_doublet width, tc48_reg_id dst, const tc48_imm* imm) {
-    if      (TC48_DOUBLET_EQL(width, TC48_OPERAND_WIDTH_6))  set_tryte(regs, dst, imm->i6);
-    else if (TC48_DOUBLET_EQL(width, TC48_OPERAND_WIDTH_12)) set_quarter(regs, dst, imm->i12);
-    else if (TC48_DOUBLET_EQL(width, TC48_OPERAND_WIDTH_24)) set_half(regs, dst, imm->i24);
-    else if (TC48_DOUBLET_EQL(width, TC48_OPERAND_WIDTH_48)) set_word(regs, dst, imm->i48);
+    if      (width == TC48_OPERAND_WIDTH_6)  set_tryte(regs, dst, imm->i6);
+    else if (width == TC48_OPERAND_WIDTH_12) set_quarter(regs, dst, imm->i12);
+    else if (width == TC48_OPERAND_WIDTH_24) set_half(regs, dst, imm->i24);
+    else if (width == TC48_OPERAND_WIDTH_48) set_word(regs, dst, imm->i48);
 }
 
 void tc48_cpu_zero_reg(tc48_cpu_regs* regs, tc48_doublet width, tc48_reg_id dst) {
-    if      (TC48_DOUBLET_EQL(width, TC48_OPERAND_WIDTH_6))  set_tryte(regs, dst, TC48_TRYTE_ZERO);
-    else if (TC48_DOUBLET_EQL(width, TC48_OPERAND_WIDTH_12)) set_quarter(regs, dst, TC48_QUARTER_ZERO);
-    else if (TC48_DOUBLET_EQL(width, TC48_OPERAND_WIDTH_24)) set_half(regs, dst, TC48_HALF_ZERO);
-    else if (TC48_DOUBLET_EQL(width, TC48_OPERAND_WIDTH_48)) set_word(regs, dst, TC48_WORD_ZERO);
+    if      (width == TC48_OPERAND_WIDTH_6)  set_tryte(regs, dst, 0);
+    else if (width == TC48_OPERAND_WIDTH_12) set_quarter(regs, dst, 0);
+    else if (width == TC48_OPERAND_WIDTH_24) set_half(regs, dst, 0);
+    else if (width == TC48_OPERAND_WIDTH_48) set_word(regs, dst, 0);
 }
 
 void tc48_cpu_mov_reg(tc48_cpu_regs* regs, tc48_doublet width, tc48_reg_id dst, tc48_reg_id src) {
-    if      (TC48_DOUBLET_EQL(width, TC48_OPERAND_WIDTH_6))  set_tryte(regs, dst, get_tryte(regs, src));
-    else if (TC48_DOUBLET_EQL(width, TC48_OPERAND_WIDTH_12)) set_quarter(regs, dst, get_quarter(regs, src));
-    else if (TC48_DOUBLET_EQL(width, TC48_OPERAND_WIDTH_24)) set_half(regs, dst, get_half(regs, src));
-    else if (TC48_DOUBLET_EQL(width, TC48_OPERAND_WIDTH_48)) set_word(regs, dst, get_word(regs, src));
+    if      (width == TC48_OPERAND_WIDTH_6)  set_tryte(regs, dst, get_tryte(regs, src));
+    else if (width == TC48_OPERAND_WIDTH_12) set_quarter(regs, dst, get_quarter(regs, src));
+    else if (width == TC48_OPERAND_WIDTH_24) set_half(regs, dst, get_half(regs, src));
+    else if (width == TC48_OPERAND_WIDTH_48) set_word(regs, dst, get_word(regs, src));
 }
 
 tc48_tryte   tc48_cpu_read_reg6 (tc48_cpu_regs* regs, tc48_reg_id r) { return get_tryte(regs, r); }
