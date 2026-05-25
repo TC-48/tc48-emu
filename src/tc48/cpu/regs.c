@@ -73,11 +73,11 @@ tc48_word    tc48_cpu_read_reg48(tc48_cpu_regs* regs, tc48_reg_id r) { return ge
     }
 
 #define MATH_IMPL_TYPE(type) \
-    MATH_IMPL_OP2(and, type) MATH_IMPL_OP2(or, type) MATH_IMPL_OP2(xor, type) \
+    MATH_IMPL_OP2(min, type) MATH_IMPL_OP2(max, type) \
     MATH_IMPL_OP1(not, type) \
     MATH_IMPL_SHIFT(shl, type) MATH_IMPL_SHIFT(shr, type)
 
-MATH_IMPL_TYPE(tryte)
-MATH_IMPL_TYPE(quarter)
-MATH_IMPL_TYPE(half)
-MATH_IMPL_TYPE(word)
+MATH_IMPL_TYPE(tryte);
+MATH_IMPL_TYPE(quarter);
+MATH_IMPL_TYPE(half);
+MATH_IMPL_TYPE(word);

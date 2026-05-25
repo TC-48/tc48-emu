@@ -6,20 +6,20 @@ Test(math,tryte_tritwise) {
     tc48_tryte a = TC48_TRYTE(0,1,2,0,1,2);
     tc48_tryte b = TC48_TRYTE(2,1,0,2,1,0);
     
-    // AND (min)
+    // MIN
     // 0&2=0,1&1=1,2&0=0,0&2=0,1&1=1,2&0=0
-    tc48_tryte res_and = tc48_math_tryte_and(a, b);
-    cr_assert(res_and == TC48_TRYTE(0,1,0,0,1,0));
+    tc48_tryte res_min = tc48_math_tryte_min(a, b);
+    cr_assert(res_min == TC48_TRYTE(0,1,0,0,1,0));
     
-    // OR (max)
+    // MAX
     // 0|2=2,1|1=1,2|0=2,0|2=2,1|1=1,2|0=2
-    tc48_tryte res_or = tc48_math_tryte_or(a, b);
-    cr_assert(res_or == TC48_TRYTE(2,1,2,2,1,2));
+    tc48_tryte res_max = tc48_math_tryte_max(a, b);
+    cr_assert(res_max == TC48_TRYTE(2,1,2,2,1,2));
     
-    // XOR (sum mod 3)
+    // ROT (sum mod 3)
     // 0+2=2,1+1=2,2+0=2,0+2=2,1+1=2,2+0=2
-    tc48_tryte res_xor = tc48_math_tryte_xor(a, b);
-    cr_assert(res_xor == TC48_TRYTE(2,2,2,2,2,2));
+    tc48_tryte res_xmax = tc48_math_tryte_rot(a, b);
+    cr_assert(res_xmax == TC48_TRYTE(2,2,2,2,2,2));
 
     // NOT (2 - trit)
     // 2-0=2,2-1=1,2-2=0,2-0=2,2-1=1,2-2=0
