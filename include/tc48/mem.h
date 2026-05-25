@@ -14,6 +14,8 @@ typedef struct tc48_memory {
 tc48_memory* tc48_mem_alloc(tc48_word size);
 void tc48_mem_free(tc48_memory* mem);
 
+void tc48_mem_load_file(tc48_memory* mem, const char* path);
+
 tc48_tryte   tc48_mem_load6 (const tc48_memory* mem, tc48_addr addr);
 tc48_quarter tc48_mem_load12(const tc48_memory* mem, tc48_addr addr);
 tc48_half    tc48_mem_load24(const tc48_memory* mem, tc48_addr addr);

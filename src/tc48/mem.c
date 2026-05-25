@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 tc48_memory* tc48_mem_alloc(tc48_word size) {
     const size_t tail_size = (size_t)size * sizeof(tc48_tryte);
@@ -16,6 +17,26 @@ tc48_memory* tc48_mem_alloc(tc48_word size) {
 
 void tc48_mem_free(tc48_memory* mem) {
     free(mem);
+}
+
+// TODO: better error handling
+void tc48_mem_load_file(tc48_memory* mem, const char* path) {
+    FILE* f = fopen(path, "rb");
+    if (!f) return;
+
+    char magic[4];
+    if (fread(magic, 1, 4, f) != 4 || memcmp(magic, "T48B", 4) != 0) {
+        fputs("error: invalid T48B magic", stderr);
+        return;
+    }
+
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    fseek(f, 4, SEEK_SET);
+
+    size_t tryte_count = (size - 4) / sizeof(tc48_tryte);
+    fread(mem->data, sizeof(tc48_tryte), tryte_count, f);
+    fclose(f);
 }
 
 tc48_tryte tc48_mem_load6(const tc48_memory* mem, tc48_addr addr) {
