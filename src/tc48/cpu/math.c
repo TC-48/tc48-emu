@@ -45,6 +45,13 @@
     }                                                                  \
     tc48_##NAME tc48_math_##NAME##_shr(tc48_##NAME a, int count) {     \
         return tc48_##NAME##_shift(a, -count);                         \
+    }                                                                  \
+    tc48_##NAME tc48_math_##NAME##_add(tc48_##NAME a, tc48_##NAME b) { \
+        return (tc48_##NAME)(((tc48_u128b)a + b) % VALUES);            \
+    }                                                                  \
+    tc48_##NAME tc48_math_##NAME##_sub(tc48_##NAME a, tc48_##NAME b) { \
+        return (tc48_##NAME)(((tc48_u128b)a                            \
+                    + VALUES - (b % VALUES)) % VALUES);                \
     }
 
 TC48_MATH_IMPL(doublet,    2,  TC48_DOUBLET_VALUES,    tc48_pow3_u32);
