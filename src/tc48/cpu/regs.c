@@ -3,6 +3,42 @@
 #include <tc48/cpu/instr.h>
 #include <tc48/cpu/math.h>
 
+#include <inttypes.h>
+#include <string.h>
+#include <stdio.h>
+
+void tc48_cpu_dump_regs(tc48_cpu_regs* regs, FILE* out) {
+    for (unsigned i = 0; i < TC48_CPU_REGS_COUNT; ++i) {
+        char name[4];
+        if      (i == TC48_CPU_REG_PC)  strcpy(name, "pc");
+        else if (i == TC48_CPU_REG_CPS) strcpy(name, "cps");
+        else if (i == TC48_CPU_REG_AZ)  continue;
+        else {
+            snprintf(name, sizeof name, "r%u", i-3);
+        }
+
+        // TODO: implement printing the whole 128-bit value
+        fprintf(out, "%s = %"PRIu64"\n", name, (tc48_u64b)regs->data[i]);
+
+        for (unsigned h = 0; h < 2; ++h) {
+            tc48_half value = tc48_cpu_read_reg24(regs, (tc48_reg_id) { .base = i, .lane = h });
+            fprintf(out, "  %s:h%u = %"PRIu64"\n", name, h, value);
+
+            for (unsigned q = 0; q < 2; ++q) {
+                const unsigned q_lane = h * 2 + q;
+                tc48_quarter value = tc48_cpu_read_reg12(regs, (tc48_reg_id) { .base = i, .lane = q_lane });
+                fprintf(out, "    %s:q%u = %"PRIu32"\n", name, q_lane, value);
+
+                for (unsigned t = 0; t < 2; ++t) {
+                    const unsigned t_lane = q_lane * 2 + t;
+                    tc48_tryte value = tc48_cpu_read_reg6(regs, (tc48_reg_id) { .base = i, .lane = t_lane });
+                    fprintf(out, "      %s:t%u = %"PRIu16"\n", name, t_lane, value);
+                }
+            }
+        }
+    }
+}
+
 static inline tc48_usize reg_to_idx(tc48_reg_id r) {
     return (tc48_usize)r.base;
 }
