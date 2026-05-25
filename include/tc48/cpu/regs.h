@@ -30,13 +30,13 @@ tc48_quarter tc48_cpu_read_reg12(tc48_cpu_regs* regs, tc48_reg_id r);
 tc48_half    tc48_cpu_read_reg24(tc48_cpu_regs* regs, tc48_reg_id r);
 tc48_word    tc48_cpu_read_reg48(tc48_cpu_regs* regs, tc48_reg_id r);
 
-#define TC48_CPU_REG_MATH_DECL_TYPE(type) \
-    void tc48_cpu_and_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
-    void tc48_cpu_or_##type##_reg (tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
-    void tc48_cpu_xor_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
-    void tc48_cpu_not_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src);                   \
-    void tc48_cpu_shl_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src, int count);      \
-    void tc48_cpu_shr_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src, int count);
+#define TC48_CPU_REG_MATH_DECL_TYPE(type)                                                                      \
+    void tc48_cpu_min_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2);  \
+    void tc48_cpu_max_##type##_reg (tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
+    void tc48_cpu_rot_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2);  \
+    void tc48_cpu_not_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src);                     \
+    void tc48_cpu_shl_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src, int count);          \
+    void tc48_cpu_shr_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src, int count);          \
 
 TC48_CPU_REG_MATH_DECL_TYPE(doublet)
 TC48_CPU_REG_MATH_DECL_TYPE(triplet)
