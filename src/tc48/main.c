@@ -7,6 +7,7 @@ int main(int argc, char** argv) {
 
     if (argc > 1) {
         tc48_mem_load_file(sys.mem, argv[1]);
+        tc48_mem_dump(sys.mem, 0, 16);
     }
 
     while (true) {

@@ -99,3 +99,16 @@ void tc48_mem_store48(tc48_memory* mem, tc48_addr addr, tc48_word value) {
         }
     }
 }
+
+void tc48_mem_dump(const tc48_memory* mem, tc48_addr addr, tc48_word size) {
+    for (tc48_addr i = 0; i < size; i++) {
+        tc48_tryte t = tc48_mem_load6(mem, addr + i);
+        printf("%04llu: ", (unsigned long long)(addr + i));
+        for (int j = 0; j < 6; j++) {
+            printf("%d", (int)tc48_tryte_get_trit(t, j));
+        }
+        printf(" (%d)\n", (int)t);
+    }
+}
+
+

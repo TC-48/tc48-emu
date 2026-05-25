@@ -26,3 +26,5 @@ void tc48_mem_store12(tc48_memory* mem, tc48_addr addr, tc48_quarter value);
 void tc48_mem_store24(tc48_memory* mem, tc48_addr addr, tc48_half value);
 void tc48_mem_store48(tc48_memory* mem, tc48_addr addr, tc48_word value);
 
+void tc48_mem_dump(const tc48_memory* mem, tc48_addr addr, tc48_word size);
+
