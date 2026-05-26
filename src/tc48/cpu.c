@@ -4,6 +4,7 @@
 #include <tc48/cpu/opcode.h>
 #include <tc48/cpu/regs.h>
 #include <tc48/cpu/math.h>
+#include <tc48/cpu/pred.h>
 
 #include <tc48/system.h>
 
@@ -51,6 +52,10 @@ void tc48_cpu_reset(tc48_cpu* cpu) {
     break;
 
 void tc48_cpu_exec(tc48_cpu* cpu, const tc48_instr* instr) {
+    if (!tc48_cpu_check_pred(cpu, instr->pred)) {
+        return;
+    }
+
     printf("format:%d width:%d opcode:%d\n", instr->format, instr->width, instr->opcode);
     switch (instr->opcode) {
     case TC48_OP_HALT: {
