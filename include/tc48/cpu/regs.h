@@ -19,6 +19,10 @@
 #define TC48_CPU_REG_CF 1 
 #define TC48_CPU_REG_AZ 2
 
+#define TC48_CF_TRIT_S 0
+#define TC48_CF_TRIT_C 1
+#define TC48_CF_TRIT_V 2
+
 typedef struct tc48_cpu_regs {
     tc48_word data[TC48_CPU_REGS_COUNT];
 } tc48_cpu_regs;

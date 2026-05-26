@@ -25,16 +25,25 @@ enum tc48_operand_width: tc48_doublet {
 
 enum tc48_pred: tc48_triplet {
     TC48_PRED_AW, /// if AlWays
-    TC48_PRED_EQ, /// if EQual
-    TC48_PRED_NE, /// if Not-Equal
-    TC48_PRED_LT, /// if Less-Than
-    TC48_PRED_GT, /// if Greater-Than
-    TC48_PRED_ZR, /// if ZeRo
-    TC48_PRED_NZ, /// if Non-Zero
-    TC48_PRED_CS, /// if Carry-Set
-    TC48_PRED_CC, /// if Carry-Clear
-    TC48_PRED_VS, /// if oVerflow-Set
-    TC48_PRED_VC, /// if oVerflow-Clear
+
+    TC48_PRED_EQ, /// if EQual         (S == 0)
+    TC48_PRED_NE, /// if Not-Equal     (S != 0)
+    TC48_PRED_LT, /// if Less-Than     (S == 2)
+    TC48_PRED_GT, /// if Greater-Than  (S == 1)
+    TC48_PRED_LE, /// if Less-Equal    (S == 0 or S == 2)
+    TC48_PRED_GE, /// if Greater-Equal (S == 0 or S == 1)
+    TC48_PRED_ZR, /// if ZeRo          (S == 0)
+    TC48_PRED_NZ, /// if Non-Zero      (S != 0)
+
+    TC48_PRED_CS, /// if Carry-Set    (C == 1)
+    TC48_PRED_CC, /// if Carry-Clear  (C != 1)
+    TC48_PRED_BS, /// if Borrow-Set   (C == 2)
+    TC48_PRED_BC, /// if Borrow-Clear (C != 2)
+
+    TC48_PRED_VS, /// if oVerflow-set          (V != 0)
+    TC48_PRED_VP, /// if oVerflow-set-Positive (V == 1)
+    TC48_PRED_VN, /// if oVerflow-set-Negative (V == 2)
+    TC48_PRED_VC, /// if oVerflow-set-Clear    (V == 0)
 };
 
 typedef struct tc48_instr {
