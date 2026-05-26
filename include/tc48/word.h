@@ -14,8 +14,6 @@ typedef tc48_u32b  tc48_quarter;      /// 12 trits
 typedef tc48_u64b  tc48_half;         /// 24 trits
 typedef tc48_u128b tc48_word;         /// 48 trits
 
-typedef tc48_word tc48_addr;
-
 #define TC48_DOUBLET_TRITS    2
 #define TC48_TRIPLET_TRITS    3
 #define TC48_QUADRUPLET_TRITS 4

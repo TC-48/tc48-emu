@@ -12,14 +12,14 @@ static tc48_word _get_val(tc48_word val, int start, int count) {
     return res;
 }
 
-static void _decode_reg(const tc48_memory* mem, tc48_addr* addr, tc48_reg_id* reg) {
+static void _decode_reg(const tc48_memory* mem, tc48_word* addr, tc48_reg_id* reg) {
     tc48_tryte r = tc48_mem_load6(mem, *addr);
     reg->base = (tc48_quadruplet)_get_val(r, 0, 4);
     reg->lane = (tc48_doublet)   _get_val(r, 4, 2);
     *addr += 1;
 }
 
-static void _decode_imm(const tc48_memory* mem, tc48_addr* addr, tc48_doublet width, tc48_imm* imm) {
+static void _decode_imm(const tc48_memory* mem, tc48_word* addr, tc48_doublet width, tc48_imm* imm) {
     switch (width) {
     case TC48_OPERAND_WIDTH_6:
         imm->i6 = (tc48_tryte)_get_val(tc48_mem_load6(mem, *addr), 0, 6);
@@ -40,8 +40,8 @@ static void _decode_imm(const tc48_memory* mem, tc48_addr* addr, tc48_doublet wi
     }
 }
 
-tc48_word tc48_decode(const tc48_memory* mem, tc48_addr addr, tc48_instr* instr) {
-    tc48_addr start_addr = addr;
+tc48_word tc48_decode(const tc48_memory* mem, tc48_word addr, tc48_instr* instr) {
+    tc48_word start_addr = addr;
     tc48_quarter header = tc48_mem_load12(mem, addr);
     addr += 2;
 

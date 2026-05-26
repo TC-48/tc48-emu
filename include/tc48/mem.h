@@ -16,15 +16,14 @@ void tc48_mem_free(tc48_memory* mem);
 
 void tc48_mem_load_file(tc48_memory* mem, const char* path);
 
-tc48_tryte   tc48_mem_load6 (const tc48_memory* mem, tc48_addr addr);
-tc48_quarter tc48_mem_load12(const tc48_memory* mem, tc48_addr addr);
-tc48_half    tc48_mem_load24(const tc48_memory* mem, tc48_addr addr);
-tc48_word    tc48_mem_load48(const tc48_memory* mem, tc48_addr addr);
+tc48_tryte   tc48_mem_load6 (const tc48_memory* mem, tc48_word addr);
+tc48_quarter tc48_mem_load12(const tc48_memory* mem, tc48_word addr);
+tc48_half    tc48_mem_load24(const tc48_memory* mem, tc48_word addr);
+tc48_word    tc48_mem_load48(const tc48_memory* mem, tc48_word addr);
 
-void tc48_mem_store6(tc48_memory* mem, tc48_addr addr, tc48_tryte value);
-void tc48_mem_store12(tc48_memory* mem, tc48_addr addr, tc48_quarter value);
-void tc48_mem_store24(tc48_memory* mem, tc48_addr addr, tc48_half value);
-void tc48_mem_store48(tc48_memory* mem, tc48_addr addr, tc48_word value);
+void tc48_mem_store6(tc48_memory* mem, tc48_word addr, tc48_tryte value);
+void tc48_mem_store12(tc48_memory* mem, tc48_word addr, tc48_quarter value);
+void tc48_mem_store24(tc48_memory* mem, tc48_word addr, tc48_half value);
+void tc48_mem_store48(tc48_memory* mem, tc48_word addr, tc48_word value);
 
-void tc48_mem_dump(const tc48_memory* mem, tc48_addr addr, tc48_word size);
-
+void tc48_mem_dump(const tc48_memory* mem, tc48_word addr, tc48_word size);

@@ -39,17 +39,17 @@ void tc48_mem_load_file(tc48_memory* mem, const char* path) {
     fclose(f);
 }
 
-tc48_tryte tc48_mem_load6(const tc48_memory* mem, tc48_addr addr) {
+tc48_tryte tc48_mem_load6(const tc48_memory* mem, tc48_word addr) {
     if (addr >= mem->size) return 0;
     return mem->data[addr];
 }
 
-tc48_quarter tc48_mem_load12(const tc48_memory* mem, tc48_addr addr) {
+tc48_quarter tc48_mem_load12(const tc48_memory* mem, tc48_word addr) {
     if (addr + 1 >= mem->size) return 0;
     return (tc48_quarter)mem->data[addr] + (tc48_quarter)mem->data[addr + 1] * TC48_TRYTE_VALUES;
 }
 
-tc48_half tc48_mem_load24(const tc48_memory* mem, tc48_addr addr) {
+tc48_half tc48_mem_load24(const tc48_memory* mem, tc48_word addr) {
     if (addr + 3 >= mem->size) return 0;
     tc48_half res = 0;
     tc48_u64b p = 1;
@@ -60,7 +60,7 @@ tc48_half tc48_mem_load24(const tc48_memory* mem, tc48_addr addr) {
     return res;
 }
 
-tc48_word tc48_mem_load48(const tc48_memory* mem, tc48_addr addr) {
+tc48_word tc48_mem_load48(const tc48_memory* mem, tc48_word addr) {
     if (addr + 7 >= mem->size) return 0;
     tc48_word res = 0;
     tc48_u128b p = 1;
@@ -71,18 +71,18 @@ tc48_word tc48_mem_load48(const tc48_memory* mem, tc48_addr addr) {
     return res;
 }
 
-void tc48_mem_store6(tc48_memory* mem, tc48_addr addr, tc48_tryte value) {
+void tc48_mem_store6(tc48_memory* mem, tc48_word addr, tc48_tryte value) {
     if (addr < mem->size) mem->data[addr] = value;
 }
 
-void tc48_mem_store12(tc48_memory* mem, tc48_addr addr, tc48_quarter value) {
+void tc48_mem_store12(tc48_memory* mem, tc48_word addr, tc48_quarter value) {
     if (addr + 1 < mem->size) {
         mem->data[addr]     = (tc48_tryte)(value % TC48_TRYTE_VALUES);
         mem->data[addr + 1] = (tc48_tryte)(value / TC48_TRYTE_VALUES);
     }
 }
 
-void tc48_mem_store24(tc48_memory* mem, tc48_addr addr, tc48_half value) {
+void tc48_mem_store24(tc48_memory* mem, tc48_word addr, tc48_half value) {
     if (addr + 3 < mem->size) {
         for (tc48_u8b i = 0; i < 4; i++) {
             mem->data[addr + i] = (tc48_tryte)(value % TC48_TRYTE_VALUES);
@@ -91,7 +91,7 @@ void tc48_mem_store24(tc48_memory* mem, tc48_addr addr, tc48_half value) {
     }
 }
 
-void tc48_mem_store48(tc48_memory* mem, tc48_addr addr, tc48_word value) {
+void tc48_mem_store48(tc48_memory* mem, tc48_word addr, tc48_word value) {
     if (addr + 7 < mem->size) {
         for (tc48_u8b i = 0; i < 8; i++) {
             mem->data[addr + i] = (tc48_tryte)(value % TC48_TRYTE_VALUES);
@@ -100,8 +100,8 @@ void tc48_mem_store48(tc48_memory* mem, tc48_addr addr, tc48_word value) {
     }
 }
 
-void tc48_mem_dump(const tc48_memory* mem, tc48_addr addr, tc48_word size) {
-    for (tc48_addr i = 0; i < size; i++) {
+void tc48_mem_dump(const tc48_memory* mem, tc48_word addr, tc48_word size) {
+    for (tc48_word i = 0; i < size; i++) {
         tc48_tryte t = tc48_mem_load6(mem, addr + i);
         printf("%04llu: ", (unsigned long long)(addr + i));
         for (int j = 0; j < 6; j++) {
@@ -110,5 +110,3 @@ void tc48_mem_dump(const tc48_memory* mem, tc48_addr addr, tc48_word size) {
         printf(" (%d)\n", (int)t);
     }
 }
-
-
