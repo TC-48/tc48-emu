@@ -24,13 +24,13 @@ typedef tc48_word tc48_addr;
 #define TC48_HALF_TRITS       24
 #define TC48_WORD_TRITS       48
 
-#define TC48_DOUBLET_VALUES    (3ULL * 3ULL)                                /// 3^2
-#define TC48_TRIPLET_VALUES    (TC48_DOUBLET_VALUES * 3ULL)                 /// 3^3
-#define TC48_QUADRUPLET_VALUES (TC48_TRIPLET_VALUES * 3ULL)                 /// 3^4
-#define TC48_TRYTE_VALUES      (TC48_QUADRUPLET_VALUES * 9ULL)              /// 3^6
-#define TC48_QUARTER_VALUES    (TC48_TRYTE_VALUES * TC48_TRYTE_VALUES)      /// 3^12
-#define TC48_HALF_VALUES       (TC48_QUARTER_VALUES * TC48_QUARTER_VALUES)  /// 3^24
-#define TC48_WORD_VALUES       ((tc48_u128b)TC48_HALF_VALUES * TC48_HALF_VALUES)        /// 3^48
+#define TC48_DOUBLET_VALUES    (3ULL * 3ULL)                                     /// 3^2
+#define TC48_TRIPLET_VALUES    (TC48_DOUBLET_VALUES * 3ULL)                      /// 3^3
+#define TC48_QUADRUPLET_VALUES (TC48_TRIPLET_VALUES * 3ULL)                      /// 3^4
+#define TC48_TRYTE_VALUES      (TC48_QUADRUPLET_VALUES * 9ULL)                   /// 3^6
+#define TC48_QUARTER_VALUES    (TC48_TRYTE_VALUES * TC48_TRYTE_VALUES)           /// 3^12
+#define TC48_HALF_VALUES       (TC48_QUARTER_VALUES * TC48_QUARTER_VALUES)       /// 3^24
+#define TC48_WORD_VALUES       ((tc48_u128b)TC48_HALF_VALUES * TC48_HALF_VALUES) /// 3^48
 
 #define _TC48_T(t, n) ((tc48_u128b)(t) * tc48_pow3_u128[n])
 

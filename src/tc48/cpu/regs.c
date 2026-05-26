@@ -2,10 +2,67 @@
 
 #include <tc48/cpu/instr.h>
 #include <tc48/cpu/math.h>
+#include <tc48/cpu/opcode.h>
 
 #include <inttypes.h>
 #include <string.h>
 #include <stdio.h>
+
+#define GET_STATUS(RES, MOD)             \
+    (RES == 0 ? TC48_CF_S_ZERO :         \
+        RES <= (MOD)/2 ? TC48_CF_S_POS   \
+            : TC48_CF_S_NEG)
+
+static void update_cf(
+    tc48_cpu_regs* regs, tc48_trit_state wcfr, 
+    tc48_word res, tc48_word a, tc48_word b, 
+    tc48_u128b mod, int op
+) {
+    if (wcfr == TC48_WCFR_NONE) return;
+    tc48_word* cf = &regs->data[TC48_CPU_REG_CF];
+
+    tc48_trit_state res_status = GET_STATUS(res, mod);
+    tc48_word_set_trit(cf, TC48_CF_TRIT_S, res_status);
+
+    if (wcfr != TC48_WCFR_FULL) return;
+
+    tc48_trit_state c = TC48_CF_C_NONE, v = TC48_CF_V_NONE;
+    tc48_trit_state a_status = GET_STATUS(a, mod);
+    tc48_trit_state b_status = GET_STATUS(b, mod);
+
+    switch (op) {
+    case TC48_OP_ADD:
+        if (res < a && b != 0) c = TC48_CF_C_CARRY;
+
+        // result of adding two positive numbers is always positive (same for negative)
+        if (a_status == TC48_CF_S_POS && b_status == TC48_CF_S_POS && res_status != TC48_CF_S_POS) v = TC48_CF_V_POS;
+        if (a_status == TC48_CF_S_NEG && b_status == TC48_CF_S_NEG && res_status != TC48_CF_S_NEG) v = TC48_CF_V_NEG;
+        break;
+
+    case TC48_OP_SUB:
+        if (res > a && b != 0) c = TC48_CF_C_BORROW;
+
+        // pos - neg should be positive, neg - pos should be negative
+        if (a_status == TC48_CF_S_POS && b_status == TC48_CF_S_NEG && res_status != TC48_CF_S_POS) v = TC48_CF_V_POS;
+        if (a_status == TC48_CF_S_NEG && b_status == TC48_CF_S_POS && res_status != TC48_CF_S_NEG) v = TC48_CF_V_NEG;
+        break;
+
+    case TC48_OP_SMUL: {
+        const tc48_i128b a_signed = (a <= mod/2) ? a : (tc48_i128b)a - mod;
+        const tc48_i128b b_signed = (b <= mod/2) ? b : (tc48_i128b)b - mod;
+        const tc48_i128b the_maximum = mod/2;
+
+        if      (a_signed * b_signed > the_maximum)  v = TC48_CF_V_POS;
+        else if (a_signed * b_signed < -the_maximum) v = TC48_CF_V_NEG;
+        break;
+    }
+    case TC48_OP_UMUL:
+        if (a != 0 && (tc48_u128b)res / a != b) c = TC48_CF_C_CARRY;
+        break; 
+    }
+    tc48_word_set_trit(cf, TC48_CF_TRIT_C, c);
+    tc48_word_set_trit(cf, TC48_CF_TRIT_V, v);
+}
 
 void tc48_cpu_dump_regs(tc48_cpu_regs* regs, FILE* out) {
     for (unsigned i = 0; i < TC48_CPU_REGS_COUNT; ++i) {
@@ -17,7 +74,6 @@ void tc48_cpu_dump_regs(tc48_cpu_regs* regs, FILE* out) {
             snprintf(name, sizeof name, "r%u", i-3);
         }
 
-        // TODO: implement printing the whole 128-bit value
         fprintf(out, "%s = %"PRIu64"\n", name, (tc48_u64b)regs->data[i]);
 
         for (unsigned h = 0; h < 2; ++h) {
@@ -39,12 +95,8 @@ void tc48_cpu_dump_regs(tc48_cpu_regs* regs, FILE* out) {
     }
 }
 
-static inline tc48_usize reg_to_idx(tc48_reg_id r) {
-    return (tc48_usize)r.base;
-}
-static inline tc48_usize lane_to_off(tc48_reg_id r) {
-    return (tc48_usize)r.lane;
-}
+static inline tc48_usize reg_to_idx(tc48_reg_id r) { return (tc48_usize)r.base; }
+static inline tc48_usize lane_to_off(tc48_reg_id r) { return (tc48_usize)r.lane; }
 
 #define GEN_ACCESSORS(name, type, bits, values)                                                     \
     static type get_##name(tc48_cpu_regs* regs, tc48_reg_id r) {                                    \
@@ -93,30 +145,46 @@ tc48_quarter tc48_cpu_read_reg12(tc48_cpu_regs* regs, tc48_reg_id r) { return ge
 tc48_half    tc48_cpu_read_reg24(tc48_cpu_regs* regs, tc48_reg_id r) { return get_half(regs, r); }
 tc48_word    tc48_cpu_read_reg48(tc48_cpu_regs* regs, tc48_reg_id r) { return get_word(regs, r); }
 
-#define MATH_IMPL_OP2(op, type) \
-    void tc48_cpu_##op##_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2) { \
-        set_##type(regs, dst, tc48_math_##type##_##op(get_##type(regs, src1), get_##type(regs, src2))); \
+#define MATH_IMPL_OP2(op, OP, type, mod)                                                                                                \
+    void tc48_cpu_##op##_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2, tc48_trit_state wcfr) { \
+        tc48_##type a = get_##type(regs, src1), b = get_##type(regs, src2);                                                             \
+        tc48_##type res = tc48_math_##type##_##op(a, b);                                                                                \
+        set_##type(regs, dst, res);                                                                                                     \
+        update_cf(regs, wcfr, (tc48_word)res, (tc48_word)a, (tc48_word)b, mod, TC48_OP_##OP);                                           \
+    }                                                                                                                                   \
+    void tc48_cpu_##op##_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_##type imm, tc48_trit_state wcfr) {  \
+        tc48_##type a = get_##type(regs, src1);                                                                                         \
+        tc48_##type res = tc48_math_##type##_##op(a, imm);                                                                              \
+        set_##type(regs, dst, res);                                                                                                     \
+        update_cf(regs, wcfr, (tc48_word)res, (tc48_word)a, (tc48_word)imm, mod, TC48_OP_##OP);                                         \
     }
 
-#define MATH_IMPL_OP1(op, type) \
-    void tc48_cpu_##op##_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src) { \
-        set_##type(regs, dst, tc48_math_##type##_##op(get_##type(regs, src))); \
+#define MATH_IMPL_OP1(op, OP, type, mod)                                                                                                \
+    void tc48_cpu_##op##_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src, tc48_trit_state wcfr) {                    \
+        tc48_##type a = get_##type(regs, src);                                                                                          \
+        tc48_##type res = tc48_math_##type##_##op(a);                                                                                   \
+        set_##type(regs, dst, res);                                                                                                     \
+        update_cf(regs, wcfr, (tc48_word)res, (tc48_word)a, 0, mod, TC48_OP_##OP);                                                      \
     }
 
-#define MATH_IMPL_SHIFT(op, type) \
-    void tc48_cpu_##op##_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src, int count) { \
-        set_##type(regs, dst, tc48_math_##type##_##op(get_##type(regs, src), count)); \
+#define MATH_IMPL_SHIFT(op, OP, type, mod)                                                                                              \
+    void tc48_cpu_##op##_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src, int count, tc48_trit_state wcfr) {         \
+        tc48_##type a = get_##type(regs, src);                                                                                          \
+        tc48_##type res = tc48_math_##type##_##op(a, count);                                                                            \
+        set_##type(regs, dst, res);                                                                                                     \
+        update_cf(regs, wcfr, (tc48_word)res, (tc48_word)a, (tc48_word)count, mod, TC48_OP_##OP);                                       \
     }
 
-#define MATH_IMPL_TYPE(type) \
-    MATH_IMPL_OP2(min, type) MATH_IMPL_OP2(max, type) \
-    MATH_IMPL_OP2(add, type) MATH_IMPL_OP2(sub, type) \
-    MATH_IMPL_OP2(umul, type) MATH_IMPL_OP2(udiv, type) \
-    MATH_IMPL_OP2(smul, type) MATH_IMPL_OP2(sdiv, type) \
-    MATH_IMPL_OP1(not, type) \
-    MATH_IMPL_SHIFT(shl, type) MATH_IMPL_SHIFT(shr, type)
+#define MATH_IMPL_TYPE(type, mod)                                                                                                       \
+    MATH_IMPL_OP2(min, MIN, type, mod) MATH_IMPL_OP2(max, MAX, type, mod)                                                               \
+    MATH_IMPL_OP2(add, ADD, type, mod) MATH_IMPL_OP2(sub, SUB, type, mod)                                                               \
+    MATH_IMPL_OP2(umul, UMUL, type, mod) MATH_IMPL_OP2(udiv, UDIV, type, mod)                                                           \
+    MATH_IMPL_OP2(smul, SMUL, type, mod) MATH_IMPL_OP2(sdiv, SDIV, type, mod)                                                           \
+    MATH_IMPL_OP2(rot, ROT, type, mod)                                                                                                  \
+    MATH_IMPL_OP1(not, NOT, type, mod)                                                                                                  \
+    MATH_IMPL_SHIFT(shl, SHL, type, mod) MATH_IMPL_SHIFT(shr, SHR, type, mod)
 
-MATH_IMPL_TYPE(tryte);
-MATH_IMPL_TYPE(quarter);
-MATH_IMPL_TYPE(half);
-MATH_IMPL_TYPE(word);
+MATH_IMPL_TYPE(tryte,   TC48_TRYTE_VALUES);
+MATH_IMPL_TYPE(quarter, TC48_QUARTER_VALUES);
+MATH_IMPL_TYPE(half,    TC48_HALF_VALUES);
+MATH_IMPL_TYPE(word,    TC48_WORD_VALUES);

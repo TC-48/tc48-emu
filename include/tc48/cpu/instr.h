@@ -46,6 +46,10 @@ enum tc48_pred: tc48_triplet {
     TC48_PRED_VC, /// if oVerflow-set-Clear    (V == 0)
 };
 
+#define TC48_WCFR_NONE TC48_ZERO
+#define TC48_WCFR_STAT TC48_ONE
+#define TC48_WCFR_FULL TC48_TWO
+
 typedef struct tc48_instr {
     tc48_doublet    format;
     tc48_doublet    width;

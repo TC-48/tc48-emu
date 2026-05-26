@@ -19,10 +19,6 @@
 #define TC48_CPU_REG_CF 1 
 #define TC48_CPU_REG_AZ 2
 
-#define TC48_CF_TRIT_S 0
-#define TC48_CF_TRIT_C 1
-#define TC48_CF_TRIT_V 2
-
 typedef struct tc48_cpu_regs {
     tc48_word data[TC48_CPU_REGS_COUNT];
 } tc48_cpu_regs;
@@ -38,19 +34,28 @@ tc48_quarter tc48_cpu_read_reg12(tc48_cpu_regs* regs, tc48_reg_id r);
 tc48_half    tc48_cpu_read_reg24(tc48_cpu_regs* regs, tc48_reg_id r);
 tc48_word    tc48_cpu_read_reg48(tc48_cpu_regs* regs, tc48_reg_id r);
 
-#define TC48_CPU_REG_MATH_DECL_TYPE(type)                                                                      \
-    void tc48_cpu_min_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2);  \
-    void tc48_cpu_max_##type##_reg (tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
-    void tc48_cpu_rot_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2);  \
-    void tc48_cpu_not_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src);                     \
-    void tc48_cpu_shl_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src, int count);          \
-    void tc48_cpu_shr_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src, int count);          \
-    void tc48_cpu_add_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2);  \
-    void tc48_cpu_sub_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2);  \
-    void tc48_cpu_umul_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
-    void tc48_cpu_udiv_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
-    void tc48_cpu_smul_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
-    void tc48_cpu_sdiv_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
+#define TC48_CPU_REG_MATH_DECL_TYPE(type)                                                                                            \
+    void tc48_cpu_min_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2, tc48_trit_state wcfr);  \
+    void tc48_cpu_max_##type##_reg (tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2, tc48_trit_state wcfr); \
+    void tc48_cpu_rot_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2, tc48_trit_state wcfr);  \
+    void tc48_cpu_not_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src, tc48_trit_state wcfr);                     \
+    void tc48_cpu_shl_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src, int count, tc48_trit_state wcfr);          \
+    void tc48_cpu_shr_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src, int count, tc48_trit_state wcfr);          \
+    void tc48_cpu_add_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2, tc48_trit_state wcfr);  \
+    void tc48_cpu_sub_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2, tc48_trit_state wcfr);  \
+    void tc48_cpu_umul_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2, tc48_trit_state wcfr); \
+    void tc48_cpu_udiv_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2, tc48_trit_state wcfr); \
+    void tc48_cpu_smul_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2, tc48_trit_state wcfr); \
+    void tc48_cpu_sdiv_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2, tc48_trit_state wcfr); \
+    void tc48_cpu_min_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_##type imm, tc48_trit_state wcfr);   \
+    void tc48_cpu_max_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_##type imm, tc48_trit_state wcfr);   \
+    void tc48_cpu_rot_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_##type imm, tc48_trit_state wcfr);   \
+    void tc48_cpu_add_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_##type imm, tc48_trit_state wcfr);   \
+    void tc48_cpu_sub_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_##type imm, tc48_trit_state wcfr);   \
+    void tc48_cpu_umul_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_##type imm, tc48_trit_state wcfr);  \
+    void tc48_cpu_udiv_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_##type imm, tc48_trit_state wcfr);  \
+    void tc48_cpu_smul_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_##type imm, tc48_trit_state wcfr);  \
+    void tc48_cpu_sdiv_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_##type imm, tc48_trit_state wcfr);  \
 
 TC48_CPU_REG_MATH_DECL_TYPE(doublet)
 TC48_CPU_REG_MATH_DECL_TYPE(triplet)
