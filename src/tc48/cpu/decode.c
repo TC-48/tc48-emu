@@ -78,11 +78,6 @@ tc48_word tc48_decode(const tc48_memory* mem, tc48_word addr, tc48_instr* instr)
         _decode_reg(mem, &addr, &instr->operands.rri.r2);
         _decode_imm(mem, &addr, instr->width, &instr->operands.rri.imm);
         break;
-    case TC48_INSTR_FORMAT_RIR:
-        _decode_reg(mem, &addr, &instr->operands.rir.r1);
-        _decode_imm(mem, &addr, instr->width, &instr->operands.rir.imm);
-        _decode_reg(mem, &addr, &instr->operands.rir.r2);
-        break;
     default:
         return 0;
     }
