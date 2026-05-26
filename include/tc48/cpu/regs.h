@@ -11,13 +11,13 @@
 #define TC48_CPU_GPR_COUNT 32
 #define TC48_CPU_REGS_COUNT \
     1 /* program counter */ \
-  + 1 /* current state */   \
+  + 1 /* current flags */   \
   + 1 /* always zero */     \
   + TC48_CPU_GPR_COUNT
 
-#define TC48_CPU_REG_PC  0
-#define TC48_CPU_REG_CPS 1 
-#define TC48_CPU_REG_AZ  2
+#define TC48_CPU_REG_PC 0
+#define TC48_CPU_REG_CF 1 
+#define TC48_CPU_REG_AZ 2
 
 typedef struct tc48_cpu_regs {
     tc48_word data[TC48_CPU_REGS_COUNT];

@@ -47,7 +47,7 @@ tc48_word tc48_decode(const tc48_memory* mem, tc48_addr addr, tc48_instr* instr)
 
     instr->format = (tc48_doublet)   _get_val(header, 0, 2);
     instr->width  = (tc48_doublet)   _get_val(header, 2, 2);
-    instr->wflags = (tc48_trit_state)_get_val(header, 4, 1);
+    instr->wcfr   = (tc48_trit_state)_get_val(header, 4, 1);
     instr->pred   = (tc48_triplet)   _get_val(header, 5, 3);
     instr->opcode = (tc48_quadruplet)_get_val(header, 8, 4);
 
