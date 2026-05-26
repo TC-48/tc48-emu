@@ -5,7 +5,7 @@
 
 #include <tc48/word.h>
 
-enum tc48_instr_format: tc48_triplet {
+enum tc48_instr_format: tc48_doublet {
     TC48_INSTR_FORMAT_NONE,
     TC48_INSTR_FORMAT_R,
     TC48_INSTR_FORMAT_I,
@@ -23,11 +23,26 @@ enum tc48_operand_width: tc48_doublet {
     TC48_OPERAND_WIDTH_48,
 };
 
+enum tc48_pred: tc48_triplet {
+    TC48_PRED_AW, /// if AlWays
+    TC48_PRED_EQ, /// if EQual
+    TC48_PRED_NE, /// if Not-Equal
+    TC48_PRED_LT, /// if Less-Than
+    TC48_PRED_GT, /// if Greater-Than
+    TC48_PRED_ZR, /// if ZeRo
+    TC48_PRED_NZ, /// if Non-Zero
+    TC48_PRED_CS, /// if Carry-Set
+    TC48_PRED_CC, /// if Carry-Clear
+    TC48_PRED_VS, /// if oVerflow-Set
+    TC48_PRED_VC, /// if oVerflow-Clear
+};
+
 typedef struct tc48_instr {
-    tc48_triplet format;
-    tc48_doublet width;
-    // 1 trit padding
-    tc48_tryte opcode;
+    tc48_doublet    format;
+    tc48_doublet    width;
+    tc48_trit_state wcfr;
+    tc48_triplet    pred;
+    tc48_quadruplet opcode;
     union {
         struct {
             tc48_reg_id r1;
