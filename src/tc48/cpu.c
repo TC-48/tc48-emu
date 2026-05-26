@@ -51,6 +51,40 @@ void tc48_cpu_reset(tc48_cpu* cpu) {
     }                                                      \
     break;
 
+static inline void tc48_cpu_exec_not_rr(tc48_cpu* cpu, const tc48_instr* instr) {
+    switch (instr->width) {
+    case TC48_OPERAND_WIDTH_6:
+        tc48_cpu_not_tryte_reg(&cpu->regs, instr->operands.rr.r1, instr->operands.rr.r2, instr->wcfr);
+        break;
+    case TC48_OPERAND_WIDTH_12:
+        tc48_cpu_not_quarter_reg(&cpu->regs, instr->operands.rr.r1, instr->operands.rr.r2, instr->wcfr);
+        break;
+    case TC48_OPERAND_WIDTH_24:
+        tc48_cpu_not_half_reg(&cpu->regs, instr->operands.rr.r1, instr->operands.rr.r2, instr->wcfr);
+        break;
+    case TC48_OPERAND_WIDTH_48:
+        tc48_cpu_not_word_reg(&cpu->regs, instr->operands.rr.r1, instr->operands.rr.r2, instr->wcfr);
+        break;
+    }
+}
+
+static inline void tc48_cpu_exec_not_ri(tc48_cpu* cpu, const tc48_instr* instr) {
+    switch (instr->width) {
+    case TC48_OPERAND_WIDTH_6:
+        tc48_cpu_not_tryte_imm(&cpu->regs, instr->operands.ri.r1, instr->operands.ri.imm.i6, instr->wcfr);
+        break;
+    case TC48_OPERAND_WIDTH_12:
+        tc48_cpu_not_quarter_imm(&cpu->regs, instr->operands.ri.r1, instr->operands.ri.imm.i12, instr->wcfr);
+        break;
+    case TC48_OPERAND_WIDTH_24:
+        tc48_cpu_not_half_imm(&cpu->regs, instr->operands.ri.r1, instr->operands.ri.imm.i24, instr->wcfr);
+        break;
+    case TC48_OPERAND_WIDTH_48:
+        tc48_cpu_not_word_imm(&cpu->regs, instr->operands.ri.r1, instr->operands.ri.imm.i48, instr->wcfr);
+        break;
+    }
+}
+
 void tc48_cpu_exec(tc48_cpu* cpu, const tc48_instr* instr) {
     if (!tc48_cpu_check_pred(cpu, instr->pred)) {
         return;
@@ -68,7 +102,23 @@ void tc48_cpu_exec(tc48_cpu* cpu, const tc48_instr* instr) {
     case TC48_OP_UDIV: EXEC_RRI_OR_RRR_OP(instr, udiv);
     case TC48_OP_SMUL: EXEC_RRI_OR_RRR_OP(instr, smul);
     case TC48_OP_SDIV: EXEC_RRI_OR_RRR_OP(instr, sdiv);
+
+    case TC48_OP_MIN:  EXEC_RRI_OR_RRR_OP(instr, min);
+    case TC48_OP_MAX:  EXEC_RRI_OR_RRR_OP(instr, max);
+    case TC48_OP_ROT:  EXEC_RRI_OR_RRR_OP(instr, rot);
+    case TC48_OP_SHL:  EXEC_RRI_OR_RRR_OP(instr, shl);
+    case TC48_OP_SHR:  EXEC_RRI_OR_RRR_OP(instr, shr);
+
+    case TC48_OP_NOT:
+        if (instr->format == TC48_INSTR_FORMAT_RR) {
+            tc48_cpu_exec_not_rr(cpu, instr);
+        } else if (instr->format == TC48_INSTR_FORMAT_RI) {
+            tc48_cpu_exec_not_ri(cpu, instr);
+        }
+        break;
+
     case TC48_OP_JMP:
+        // TODO: i dont know if we should support other operand widths or just enforce 48 trits for the address
         if (instr->format == TC48_INSTR_FORMAT_I) {
             cpu->regs.data[TC48_CPU_REG_PC] = instr->operands.i.imm.i48;
         } else if (instr->format == TC48_INSTR_FORMAT_R) {

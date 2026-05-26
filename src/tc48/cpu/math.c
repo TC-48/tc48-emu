@@ -40,10 +40,12 @@
         }                                                               \
         return res;                                                     \
     }                                                                   \
-    tc48_##NAME tc48_math_##NAME##_shl(tc48_##NAME a, int count) {      \
+    tc48_##NAME tc48_math_##NAME##_shl(tc48_##NAME a, tc48_##NAME b) {  \
+        int count = (int)tc48_##NAME##_to_i##SUFFIX(b);                 \
         return tc48_##NAME##_shift(a, count);                           \
     }                                                                   \
-    tc48_##NAME tc48_math_##NAME##_shr(tc48_##NAME a, int count) {      \
+    tc48_##NAME tc48_math_##NAME##_shr(tc48_##NAME a, tc48_##NAME b) {  \
+        int count = (int)tc48_##NAME##_to_i##SUFFIX(b);                 \
         return tc48_##NAME##_shift(a, -count);                          \
     }                                                                   \
     tc48_##NAME tc48_math_##NAME##_add(tc48_##NAME a, tc48_##NAME b) {  \

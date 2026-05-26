@@ -167,12 +167,12 @@ tc48_word    tc48_cpu_read_reg48(tc48_cpu_regs* regs, tc48_reg_id r) { return ge
         update_cf(regs, wcfr, (tc48_word)res, (tc48_word)a, 0, mod, TC48_OP_##OP);                                                      \
     }
 
-#define MATH_IMPL_SHIFT(op, OP, type, mod)                                                                                              \
-    void tc48_cpu_##op##_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src, int count, tc48_trit_state wcfr) {         \
-        tc48_##type a = get_##type(regs, src);                                                                                          \
-        tc48_##type res = tc48_math_##type##_##op(a, count);                                                                            \
+#define MATH_IMPL_OP1_IMM(op, OP, type, mod)                                                                                            \
+    void tc48_cpu_##op##_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_##type imm, tc48_trit_state wcfr) {                    \
+        tc48_##type a = imm;                                                                                                            \
+        tc48_##type res = tc48_math_##type##_##op(a);                                                                                   \
         set_##type(regs, dst, res);                                                                                                     \
-        update_cf(regs, wcfr, (tc48_word)res, (tc48_word)a, (tc48_word)count, mod, TC48_OP_##OP);                                       \
+        update_cf(regs, wcfr, (tc48_word)res, (tc48_word)a, 0, mod, TC48_OP_##OP);                                                      \
     }
 
 #define MATH_IMPL_TYPE(type, mod)                                                                                                       \
@@ -182,7 +182,8 @@ tc48_word    tc48_cpu_read_reg48(tc48_cpu_regs* regs, tc48_reg_id r) { return ge
     MATH_IMPL_OP2(smul, SMUL, type, mod) MATH_IMPL_OP2(sdiv, SDIV, type, mod)                                                           \
     MATH_IMPL_OP2(rot, ROT, type, mod)                                                                                                  \
     MATH_IMPL_OP1(not, NOT, type, mod)                                                                                                  \
-    MATH_IMPL_SHIFT(shl, SHL, type, mod) MATH_IMPL_SHIFT(shr, SHR, type, mod)
+    MATH_IMPL_OP1_IMM(not, NOT, type, mod)                                                                                              \
+    MATH_IMPL_OP2(shl, SHL, type, mod) MATH_IMPL_OP2(shr, SHR, type, mod)
 
 MATH_IMPL_TYPE(tryte,   TC48_TRYTE_VALUES);
 MATH_IMPL_TYPE(quarter, TC48_QUARTER_VALUES);
