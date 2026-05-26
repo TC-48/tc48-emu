@@ -30,5 +30,4 @@ enum tc48_opcode: tc48_quadruplet {
     TC48_OP_OSTORE, /// offset store; format: RRI or RIR
 
     TC48_OP_JMP, /// jump; format: R or I
-
 };

@@ -60,6 +60,10 @@ void tc48_cpu_exec(tc48_cpu* cpu, const tc48_instr* instr) {
     case TC48_OP_HALT: exit(1);
     case TC48_OP_ADD:  EXEC_RRI_OR_RRR_OP(instr, add);
     case TC48_OP_SUB:  EXEC_RRI_OR_RRR_OP(instr, sub);
+    case TC48_OP_UMUL: EXEC_RRI_OR_RRR_OP(instr, umul);
+    case TC48_OP_UDIV: EXEC_RRI_OR_RRR_OP(instr, udiv);
+    case TC48_OP_SMUL: EXEC_RRI_OR_RRR_OP(instr, smul);
+    case TC48_OP_SDIV: EXEC_RRI_OR_RRR_OP(instr, sdiv);
     }
 }
 

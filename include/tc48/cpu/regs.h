@@ -43,6 +43,10 @@ tc48_word    tc48_cpu_read_reg48(tc48_cpu_regs* regs, tc48_reg_id r);
     void tc48_cpu_shr_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src, int count);          \
     void tc48_cpu_add_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2);  \
     void tc48_cpu_sub_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2);  \
+    void tc48_cpu_umul_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
+    void tc48_cpu_udiv_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
+    void tc48_cpu_smul_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
+    void tc48_cpu_sdiv_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2); \
 
 TC48_CPU_REG_MATH_DECL_TYPE(doublet)
 TC48_CPU_REG_MATH_DECL_TYPE(triplet)

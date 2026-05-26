@@ -111,6 +111,8 @@ tc48_word    tc48_cpu_read_reg48(tc48_cpu_regs* regs, tc48_reg_id r) { return ge
 #define MATH_IMPL_TYPE(type) \
     MATH_IMPL_OP2(min, type) MATH_IMPL_OP2(max, type) \
     MATH_IMPL_OP2(add, type) MATH_IMPL_OP2(sub, type) \
+    MATH_IMPL_OP2(umul, type) MATH_IMPL_OP2(udiv, type) \
+    MATH_IMPL_OP2(smul, type) MATH_IMPL_OP2(sdiv, type) \
     MATH_IMPL_OP1(not, type) \
     MATH_IMPL_SHIFT(shl, type) MATH_IMPL_SHIFT(shr, type)
 
