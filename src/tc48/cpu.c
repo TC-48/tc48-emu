@@ -91,11 +91,13 @@ void tc48_cpu_exec(tc48_cpu* cpu, const tc48_instr* instr) {
     }
 
     printf("format:%d width:%d opcode:%d\n", instr->format, instr->width, instr->opcode);
-    switch (instr->opcode) {
+    switch ((enum tc48_opcode)instr->opcode) {
+    case TC48_OP_NOP: break;
     case TC48_OP_HALT: {
         tc48_cpu_dump_regs(&cpu->regs, stdout);
         exit(1);
     }
+
     case TC48_OP_ADD:  EXEC_RRI_OR_RRR_OP(instr, add);
     case TC48_OP_SUB:  EXEC_RRI_OR_RRR_OP(instr, sub);
     case TC48_OP_UMUL: EXEC_RRI_OR_RRR_OP(instr, umul);
@@ -114,15 +116,6 @@ void tc48_cpu_exec(tc48_cpu* cpu, const tc48_instr* instr) {
             tc48_cpu_exec_not_rr(cpu, instr);
         } else if (instr->format == TC48_INSTR_FORMAT_RI) {
             tc48_cpu_exec_not_ri(cpu, instr);
-        }
-        break;
-
-    case TC48_OP_JMP:
-        // TODO: i dont know if we should support other operand widths or just enforce 48 trits for the address
-        if (instr->format == TC48_INSTR_FORMAT_I) {
-            cpu->regs.data[TC48_CPU_REG_PC] = instr->operands.i.imm.i48;
-        } else if (instr->format == TC48_INSTR_FORMAT_R) {
-            cpu->regs.data[TC48_CPU_REG_PC] = tc48_cpu_read_reg48(&cpu->regs, instr->operands.r.r1);
         }
         break;
     }
