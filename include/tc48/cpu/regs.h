@@ -23,16 +23,17 @@ typedef struct tc48_cpu_regs {
     tc48_word data[TC48_CPU_REGS_COUNT];
 } tc48_cpu_regs;
 
-void tc48_cpu_set_reg_imm(tc48_cpu_regs* regs, tc48_doublet width, tc48_reg_id dst, const tc48_imm* imm);
-void tc48_cpu_zero_reg(tc48_cpu_regs* regs, tc48_doublet width, tc48_reg_id dst);
-void tc48_cpu_mov_reg(tc48_cpu_regs* regs, tc48_doublet width, tc48_reg_id dst, tc48_reg_id src);
-
 void tc48_cpu_dump_regs(tc48_cpu_regs* regs, FILE* out);
 
 tc48_tryte   tc48_cpu_read_reg6 (tc48_cpu_regs* regs, tc48_reg_id r);
 tc48_quarter tc48_cpu_read_reg12(tc48_cpu_regs* regs, tc48_reg_id r);
 tc48_half    tc48_cpu_read_reg24(tc48_cpu_regs* regs, tc48_reg_id r);
 tc48_word    tc48_cpu_read_reg48(tc48_cpu_regs* regs, tc48_reg_id r);
+
+void tc48_cpu_write_reg6 (tc48_cpu_regs* regs, tc48_reg_id r, tc48_tryte val);
+void tc48_cpu_write_reg12(tc48_cpu_regs* regs, tc48_reg_id r, tc48_quarter val);
+void tc48_cpu_write_reg24(tc48_cpu_regs* regs, tc48_reg_id r, tc48_half val);
+void tc48_cpu_write_reg48(tc48_cpu_regs* regs, tc48_reg_id r, tc48_word val);
 
 #define TC48_CPU_REG_MATH_DECL_TYPE(type)                                                                                            \
     void tc48_cpu_min_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2, tc48_trit_state wcfr);  \

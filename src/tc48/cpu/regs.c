@@ -118,31 +118,15 @@ GEN_ACCESSORS(quarter,    tc48_quarter,    12, TC48_QUARTER_VALUES)
 GEN_ACCESSORS(half,       tc48_half,       24, TC48_HALF_VALUES)
 GEN_ACCESSORS(word,       tc48_word,       48, TC48_WORD_VALUES)
 
-void tc48_cpu_set_reg_imm(tc48_cpu_regs* regs, tc48_doublet width, tc48_reg_id dst, const tc48_imm* imm) {
-    if      (width == TC48_OPERAND_WIDTH_6)  set_tryte(regs, dst, imm->i6);
-    else if (width == TC48_OPERAND_WIDTH_12) set_quarter(regs, dst, imm->i12);
-    else if (width == TC48_OPERAND_WIDTH_24) set_half(regs, dst, imm->i24);
-    else if (width == TC48_OPERAND_WIDTH_48) set_word(regs, dst, imm->i48);
-}
-
-void tc48_cpu_zero_reg(tc48_cpu_regs* regs, tc48_doublet width, tc48_reg_id dst) {
-    if      (width == TC48_OPERAND_WIDTH_6)  set_tryte(regs, dst, 0);
-    else if (width == TC48_OPERAND_WIDTH_12) set_quarter(regs, dst, 0);
-    else if (width == TC48_OPERAND_WIDTH_24) set_half(regs, dst, 0);
-    else if (width == TC48_OPERAND_WIDTH_48) set_word(regs, dst, 0);
-}
-
-void tc48_cpu_mov_reg(tc48_cpu_regs* regs, tc48_doublet width, tc48_reg_id dst, tc48_reg_id src) {
-    if      (width == TC48_OPERAND_WIDTH_6)  set_tryte(regs, dst, get_tryte(regs, src));
-    else if (width == TC48_OPERAND_WIDTH_12) set_quarter(regs, dst, get_quarter(regs, src));
-    else if (width == TC48_OPERAND_WIDTH_24) set_half(regs, dst, get_half(regs, src));
-    else if (width == TC48_OPERAND_WIDTH_48) set_word(regs, dst, get_word(regs, src));
-}
-
 tc48_tryte   tc48_cpu_read_reg6 (tc48_cpu_regs* regs, tc48_reg_id r) { return get_tryte(regs, r); }
 tc48_quarter tc48_cpu_read_reg12(tc48_cpu_regs* regs, tc48_reg_id r) { return get_quarter(regs, r); }
 tc48_half    tc48_cpu_read_reg24(tc48_cpu_regs* regs, tc48_reg_id r) { return get_half(regs, r); }
 tc48_word    tc48_cpu_read_reg48(tc48_cpu_regs* regs, tc48_reg_id r) { return get_word(regs, r); }
+
+void tc48_cpu_write_reg6 (tc48_cpu_regs* regs, tc48_reg_id r, tc48_tryte val)   { set_tryte(regs, r, val); }
+void tc48_cpu_write_reg12(tc48_cpu_regs* regs, tc48_reg_id r, tc48_quarter val) { set_quarter(regs, r, val); }
+void tc48_cpu_write_reg24(tc48_cpu_regs* regs, tc48_reg_id r, tc48_half val)    { set_half(regs, r, val); }
+void tc48_cpu_write_reg48(tc48_cpu_regs* regs, tc48_reg_id r, tc48_word val)    { set_word(regs, r, val); }
 
 #define MATH_IMPL_OP2(op, OP, type, mod)                                                                                                \
     void tc48_cpu_##op##_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2, tc48_trit_state wcfr) { \
