@@ -98,12 +98,14 @@ void tc48_cpu_dump_regs(tc48_cpu_regs* regs, FILE* out) {
 #define GEN_ACCESSORS(name, type, bits, values)                            \
     static type get_##name(tc48_cpu_regs* regs, tc48_reg_id r) {           \
         tc48_usize idx = r.base;                                           \
+        if (idx == TC48_CPU_REG_AZ) return 0;                              \
         tc48_usize off = (TC48_WORD_TRITS - (r.lane + 1) * bits);          \
         tc48_word w = regs->data[idx];                                     \
         return (type)((w / tc48_pow3_u128[off]) % (values));               \
     }                                                                      \
     static void set_##name(tc48_cpu_regs* regs, tc48_reg_id r, type val) { \
         tc48_usize idx = r.base;                                           \
+        if (idx == TC48_CPU_REG_AZ) return;                                \
         tc48_usize off = (TC48_WORD_TRITS - (r.lane + 1) * bits);          \
         tc48_u128b p = tc48_pow3_u128[off];                                \
         tc48_word w = regs->data[idx];                                     \
