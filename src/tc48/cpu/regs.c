@@ -95,23 +95,20 @@ void tc48_cpu_dump_regs(tc48_cpu_regs* regs, FILE* out) {
     }
 }
 
-static inline tc48_usize reg_to_idx(tc48_reg_id r) { return (tc48_usize)r.base; }
-static inline tc48_usize lane_to_off(tc48_reg_id r) { return (tc48_usize)r.lane; }
-
-#define GEN_ACCESSORS(name, type, bits, values)                                                     \
-    static type get_##name(tc48_cpu_regs* regs, tc48_reg_id r) {                                    \
-        tc48_usize idx = reg_to_idx(r);                                                             \
-        tc48_usize off = lane_to_off(r) * bits;                                                     \
-        tc48_word w = regs->data[idx];                                                              \
-        return (type)((w / tc48_pow3_u128[off]) % (values));                                        \
-    }                                                                                               \
-    static void set_##name(tc48_cpu_regs* regs, tc48_reg_id r, type val) {                          \
-        tc48_usize idx = reg_to_idx(r);                                                             \
-        tc48_usize off = lane_to_off(r) * bits;                                                     \
-        tc48_u128b p = tc48_pow3_u128[off];                                                         \
-        tc48_word w = regs->data[idx];                                                              \
-        tc48_word current_val = (w / p) % (values);                                                 \
-        regs->data[idx] = w - (current_val * p) + ((tc48_word)val * p);                             \
+#define GEN_ACCESSORS(name, type, bits, values)                            \
+    static type get_##name(tc48_cpu_regs* regs, tc48_reg_id r) {           \
+        tc48_usize idx = r.base;                                           \
+        tc48_usize off = (TC48_WORD_TRITS - (r.lane + 1) * bits);          \
+        tc48_word w = regs->data[idx];                                     \
+        return (type)((w / tc48_pow3_u128[off]) % (values));               \
+    }                                                                      \
+    static void set_##name(tc48_cpu_regs* regs, tc48_reg_id r, type val) { \
+        tc48_usize idx = r.base;                                           \
+        tc48_usize off = (TC48_WORD_TRITS - (r.lane + 1) * bits);          \
+        tc48_u128b p = tc48_pow3_u128[off];                                \
+        tc48_word w = regs->data[idx];                                     \
+        tc48_word current_val = (w / p) % (values);                        \
+        regs->data[idx] = w - (current_val * p) + ((tc48_word)val * p);    \
     }
 
 GEN_ACCESSORS(tryte,      tc48_tryte,      6,  TC48_TRYTE_VALUES)

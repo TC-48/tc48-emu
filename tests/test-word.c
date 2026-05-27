@@ -5,11 +5,8 @@
 static tc48_u128b to_unsigned_ref(const tc48_trit_state *trits, int bits)
 {
     tc48_u128b res = 0;
-    tc48_u128b pow = 1;
-
     for (int i = 0; i < bits; ++i) {
-        res += (tc48_u128b) trits[i] * pow;
-        pow *= 3;
+        res = res * 3 + (tc48_u128b) trits[i];
     }
     return res;
 }
@@ -49,15 +46,15 @@ Test(word, NAME##_all) {                                                     \
         if (TRITS > 1) {                                                     \
             tc48_##NAME shl = tc48_##NAME##_shift(v, 1);                     \
                                                                              \
-            cr_assert_eq(tc48_##NAME##_get_trit(shl, 0), TC48_ZERO);         \
-            for (int i = 1; i < TRITS; ++i)                                  \
-                cr_assert(tc48_##NAME##_get_trit(shl, i) == trits[i - 1]);   \
+            cr_assert_eq(tc48_##NAME##_get_trit(shl, TRITS - 1), TC48_ZERO); \
+            for (int i = 0; i < TRITS - 1; ++i)                              \
+                cr_assert(tc48_##NAME##_get_trit(shl, i) == trits[i + 1]);   \
                                                                              \
             tc48_##NAME shr = tc48_##NAME##_shift(v, -1);                    \
                                                                              \
-            cr_assert_eq(tc48_##NAME##_get_trit(shr, TRITS - 1), TC48_ZERO); \
-            for (int i = 0; i < TRITS - 1; ++i)                              \
-                cr_assert(tc48_##NAME##_get_trit(shr, i) == trits[i + 1]);   \
+            cr_assert_eq(tc48_##NAME##_get_trit(shr, 0), TC48_ZERO);         \
+            for (int i = 1; i < TRITS; ++i)                                  \
+                cr_assert(tc48_##NAME##_get_trit(shr, i) == trits[i - 1]);   \
         }                                                                    \
                                                                              \
         /* overflow shift */                                                 \
@@ -67,7 +64,7 @@ Test(word, NAME##_all) {                                                     \
 }                                                                            \
 Test(word, NAME##_large_shift) {                                             \
     tc48_##NAME v = 0;                                                       \
-    tc48_##NAME##_set_trit(&v, TRITS - 1, 1);                                \
+    tc48_##NAME##_set_trit(&v, 0, 1);                                        \
     for (int i = 1; i < TRITS; ++i) {                                        \
         tc48_##NAME shl = tc48_##NAME##_shift(v, i);                         \
         cr_assert_eq(shl, 0);                                                \

@@ -36,10 +36,11 @@ typedef tc48_u128b tc48_word;         /// 48 trits
 
 #define TC48_GEN_WORD_UTILS(NAME, TYPE, TRITS, VALUES, U_BIN, I_BIN, SUFFIX, POW_TABLE)                  \
    static inline tc48_trit_state tc48_##NAME##_get_trit(tc48_##NAME w, int n) {                          \
-       return (tc48_trit_state)((w / POW_TABLE[n]) % 3);                                                 \
+       return (tc48_trit_state)((w / POW_TABLE[TRITS - 1 - n]) % 3);                                     \
    }                                                                                                     \
    static inline void tc48_##NAME##_set_trit(tc48_##NAME *w, int n, tc48_trit_state t) {                 \
-       *w = (TYPE)(*w - (tc48_##NAME##_get_trit(*w, n) * POW_TABLE[n]) + ((TYPE)t * POW_TABLE[n]));      \
+       tc48_u128b p = POW_TABLE[TRITS - 1 - n];                                                          \
+       *w = (TYPE)(*w - (tc48_##NAME##_get_trit(*w, n) * p) + ((TYPE)t * p));                             \
    }                                                                                                     \
    static inline tc48_##NAME tc48_##NAME##_shift(tc48_##NAME w, int count) {                             \
        if (count >= TRITS || count <= -TRITS) return 0;                                                  \

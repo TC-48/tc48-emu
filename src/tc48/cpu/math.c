@@ -8,35 +8,39 @@
     tc48_##NAME tc48_math_##NAME##_min(tc48_##NAME a, tc48_##NAME b) {  \
         tc48_##NAME res = 0;                                            \
         for (tc48_u8b i = 0; i < TRITS; i++) {                          \
-            tc48_trit_state ta = (a / POW_TABLE[i]) % 3;                \
-            tc48_trit_state tb = (b / POW_TABLE[i]) % 3;                \
-            res += (tc48_##NAME)TC48_MIN(ta, tb) * POW_TABLE[i];        \
+            tc48_u128b p = POW_TABLE[TRITS - 1 - i];                    \
+            tc48_trit_state ta = (a / p) % 3;                           \
+            tc48_trit_state tb = (b / p) % 3;                           \
+            res += (tc48_##NAME)TC48_MIN(ta, tb) * p;                   \
         }                                                               \
         return res;                                                     \
     }                                                                   \
     tc48_##NAME tc48_math_##NAME##_max(tc48_##NAME a, tc48_##NAME b) {  \
         tc48_##NAME res = 0;                                            \
         for (tc48_u8b i = 0; i < TRITS; i++) {                          \
-            tc48_trit_state ta = (a / POW_TABLE[i]) % 3;                \
-            tc48_trit_state tb = (b / POW_TABLE[i]) % 3;                \
-            res += (tc48_##NAME)TC48_MAX(ta, tb) * POW_TABLE[i];        \
+            tc48_u128b p = POW_TABLE[TRITS - 1 - i];                    \
+            tc48_trit_state ta = (a / p) % 3;                           \
+            tc48_trit_state tb = (b / p) % 3;                           \
+            res += (tc48_##NAME)TC48_MAX(ta, tb) * p;                   \
         }                                                               \
         return res;                                                     \
     }                                                                   \
     tc48_##NAME tc48_math_##NAME##_rot(tc48_##NAME a, tc48_##NAME b) {  \
         tc48_##NAME res = 0;                                            \
         for (tc48_u8b i = 0; i < TRITS; i++) {                          \
-            tc48_trit_state ta = (a / POW_TABLE[i]) % 3;                \
-            tc48_trit_state tb = (b / POW_TABLE[i]) % 3;                \
-            res += (tc48_##NAME)((ta + tb) % 3) * POW_TABLE[i];         \
+            tc48_u128b p = POW_TABLE[TRITS - 1 - i];                    \
+            tc48_trit_state ta = (a / p) % 3;                           \
+            tc48_trit_state tb = (b / p) % 3;                           \
+            res += (tc48_##NAME)((ta + tb) % 3) * p;                    \
         }                                                               \
         return res;                                                     \
     }                                                                   \
     tc48_##NAME tc48_math_##NAME##_not(tc48_##NAME a) {                 \
         tc48_##NAME res = 0;                                            \
         for (tc48_u8b i = 0; i < TRITS; i++) {                          \
-            tc48_trit_state ta = (a / POW_TABLE[i]) % 3;                \
-            res += (tc48_##NAME)(2 - ta) * POW_TABLE[i];                \
+            tc48_u128b p = POW_TABLE[TRITS - 1 - i];                    \
+            tc48_trit_state ta = (a / p) % 3;                           \
+            res += (tc48_##NAME)(2 - ta) * p;                           \
         }                                                               \
         return res;                                                     \
     }                                                                   \
