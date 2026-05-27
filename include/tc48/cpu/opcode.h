@@ -22,15 +22,11 @@ enum tc48_opcode: tc48_quadruplet {
     TC48_OP_SMUL, /// signed mul;   format: RRR or RRI
     TC48_OP_SDIV, /// signed div;   format: RRR or RRI
 
-    TC48_OP_IN,     /// input;         format: RR or RI
-    TC48_OP_OUT,    /// output;        format: RR or RI
-    TC48_OP_OFFIN,  /// offset input;  format: RRR or RRI
-    TC48_OP_OFFOUT, /// offset output; format: RRR or RRI
+    TC48_OP_IN,  /// input;  format: RRR or RRI
+    TC48_OP_OUT, /// output; format: RRR or RRI
 
-    TC48_OP_LOAD,   /// load;         format: RR, RI
-    TC48_OP_STORE,  /// store;        format: RR, RI
-    TC48_OP_OLOAD,  /// offset load;  format: RRR, RRI
-    TC48_OP_OSTORE, /// offset store; format: RRR, RRI
+    TC48_OP_LOAD,  /// load;  format: RRR, RRI
+    TC48_OP_STORE, /// store; format: RRR, RRI
 
     TC48_OP_JMP, /// jump; format: R or I
 };
