@@ -75,6 +75,7 @@ void tc48_cpu_dump_regs(tc48_cpu_regs* regs, FILE* out) {
         }
 
         fprintf(out, "%s = %"PRIu64"\n", name, (tc48_u64b)regs->data[i]);
+        if (regs->data[i] == 0) continue;
 
         for (unsigned h = 0; h < 2; ++h) {
             tc48_half value = tc48_cpu_read_reg24(regs, (tc48_reg_id) { .base = i, .lane = h });
