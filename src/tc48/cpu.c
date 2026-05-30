@@ -51,39 +51,37 @@ void tc48_cpu_reset(tc48_cpu* cpu) {
     }                                                      \
     break;
 
-static inline void tc48_cpu_exec_not_rr(tc48_cpu* cpu, const tc48_instr* instr) {
-    switch (instr->width) {
-    case TC48_OPERAND_WIDTH_6:
-        tc48_cpu_not_tryte_reg(&cpu->regs, instr->operands.rr.r1, instr->operands.rr.r2, instr->wcfr);
-        break;
-    case TC48_OPERAND_WIDTH_12:
-        tc48_cpu_not_quarter_reg(&cpu->regs, instr->operands.rr.r1, instr->operands.rr.r2, instr->wcfr);
-        break;
-    case TC48_OPERAND_WIDTH_24:
-        tc48_cpu_not_half_reg(&cpu->regs, instr->operands.rr.r1, instr->operands.rr.r2, instr->wcfr);
-        break;
-    case TC48_OPERAND_WIDTH_48:
-        tc48_cpu_not_word_reg(&cpu->regs, instr->operands.rr.r1, instr->operands.rr.r2, instr->wcfr);
-        break;
+#define EXEC_RR_OP(OP)                                                                                             \
+    switch (instr->width) {                                                                                        \
+    case TC48_OPERAND_WIDTH_6:                                                                                     \
+        tc48_cpu_##OP##_tryte_reg(&cpu->regs, instr->operands.rr.r1, instr->operands.rr.r2, instr->wcfr); break;   \
+    case TC48_OPERAND_WIDTH_12:                                                                                    \
+        tc48_cpu_##OP##_quarter_reg(&cpu->regs, instr->operands.rr.r1, instr->operands.rr.r2, instr->wcfr); break; \
+    case TC48_OPERAND_WIDTH_24:                                                                                    \
+        tc48_cpu_##OP##_half_reg(&cpu->regs, instr->operands.rr.r1, instr->operands.rr.r2, instr->wcfr); break;    \
+    case TC48_OPERAND_WIDTH_48:                                                                                    \
+        tc48_cpu_##OP##_word_reg(&cpu->regs, instr->operands.rr.r1, instr->operands.rr.r2, instr->wcfr); break;    \
     }
-}
 
-static inline void tc48_cpu_exec_not_ri(tc48_cpu* cpu, const tc48_instr* instr) {
-    switch (instr->width) {
-    case TC48_OPERAND_WIDTH_6:
-        tc48_cpu_not_tryte_imm(&cpu->regs, instr->operands.ri.r1, instr->operands.ri.imm.i6, instr->wcfr);
-        break;
-    case TC48_OPERAND_WIDTH_12:
-        tc48_cpu_not_quarter_imm(&cpu->regs, instr->operands.ri.r1, instr->operands.ri.imm.i12, instr->wcfr);
-        break;
-    case TC48_OPERAND_WIDTH_24:
-        tc48_cpu_not_half_imm(&cpu->regs, instr->operands.ri.r1, instr->operands.ri.imm.i24, instr->wcfr);
-        break;
-    case TC48_OPERAND_WIDTH_48:
-        tc48_cpu_not_word_imm(&cpu->regs, instr->operands.ri.r1, instr->operands.ri.imm.i48, instr->wcfr);
-        break;
+#define EXEC_RI_OP(OP)                                                                                                  \
+    switch (instr->width) {                                                                                             \
+    case TC48_OPERAND_WIDTH_6:                                                                                          \
+        tc48_cpu_##OP##_tryte_imm(&cpu->regs, instr->operands.ri.r1, instr->operands.ri.imm.i6, instr->wcfr); break;    \
+    case TC48_OPERAND_WIDTH_12:                                                                                         \
+        tc48_cpu_##OP##_quarter_imm(&cpu->regs, instr->operands.ri.r1, instr->operands.ri.imm.i12, instr->wcfr); break; \
+    case TC48_OPERAND_WIDTH_24:                                                                                         \
+        tc48_cpu_##OP##_half_imm(&cpu->regs, instr->operands.ri.r1, instr->operands.ri.imm.i24, instr->wcfr); break;    \
+    case TC48_OPERAND_WIDTH_48:                                                                                         \
+        tc48_cpu_##OP##_word_imm(&cpu->regs, instr->operands.ri.r1, instr->operands.ri.imm.i48, instr->wcfr); break;    \
     }
-}
+
+#define EXEC_RI_OR_RR_OP(INSTR, OP)                       \
+    if ((INSTR)->format == TC48_INSTR_FORMAT_RR) {        \
+        EXEC_RR_OP(OP);                                   \
+    } else if ((INSTR)->format == TC48_INSTR_FORMAT_RI) { \
+        EXEC_RI_OP(OP);                                   \
+    }                                                     \
+    break;
 
 void tc48_cpu_exec(tc48_cpu* cpu, const tc48_instr* instr) {
     if (!tc48_cpu_check_pred(cpu, instr->pred)) {
@@ -111,15 +109,11 @@ void tc48_cpu_exec(tc48_cpu* cpu, const tc48_instr* instr) {
     case TC48_OP_SHL:  EXEC_RRI_OR_RRR_OP(instr, shl);
     case TC48_OP_SHR:  EXEC_RRI_OR_RRR_OP(instr, shr);
 
-    case TC48_OP_NOT:
-        if (instr->format == TC48_INSTR_FORMAT_RR) {
-            tc48_cpu_exec_not_rr(cpu, instr);
-        } else if (instr->format == TC48_INSTR_FORMAT_RI) {
-            tc48_cpu_exec_not_ri(cpu, instr);
-        }
-        break;
+    case TC48_OP_NOT:  EXEC_RI_OR_RR_OP(instr, not);
+    case TC48_OP_NEG:  EXEC_RI_OR_RR_OP(instr, neg);
     }
 }
+
 
 void tc48_cpu_step(tc48_cpu* cpu) {
     tc48_instr instr;

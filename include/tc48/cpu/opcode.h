@@ -16,6 +16,7 @@ enum tc48_opcode: tc48_quadruplet {
 
     TC48_OP_ADD, /// add; format: RRR or RRI
     TC48_OP_SUB, /// sub; format: RRR or RRI
+    TC48_OP_NEG, /// neg; format: RR or RI
     
     TC48_OP_UMUL, /// unsigned mul; format: RRR or RRI
     TC48_OP_UDIV, /// unsigned div; format: RRR or RRI

@@ -150,9 +150,7 @@ void tc48_cpu_write_reg48(tc48_cpu_regs* regs, tc48_reg_id r, tc48_word val)    
         tc48_##type res = tc48_math_##type##_##op(a);                                                                                   \
         set_##type(regs, dst, res);                                                                                                     \
         update_cf(regs, wcfr, (tc48_word)res, (tc48_word)a, 0, mod, TC48_OP_##OP);                                                      \
-    }
-
-#define MATH_IMPL_OP1_IMM(op, OP, type, mod)                                                                                            \
+    }                                                                                                                                   \
     void tc48_cpu_##op##_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_##type imm, tc48_trit_state wcfr) {                    \
         tc48_##type a = imm;                                                                                                            \
         tc48_##type res = tc48_math_##type##_##op(a);                                                                                   \
@@ -166,8 +164,7 @@ void tc48_cpu_write_reg48(tc48_cpu_regs* regs, tc48_reg_id r, tc48_word val)    
     MATH_IMPL_OP2(umul, UMUL, type, mod) MATH_IMPL_OP2(udiv, UDIV, type, mod)                                                           \
     MATH_IMPL_OP2(smul, SMUL, type, mod) MATH_IMPL_OP2(sdiv, SDIV, type, mod)                                                           \
     MATH_IMPL_OP2(rot, ROT, type, mod)                                                                                                  \
-    MATH_IMPL_OP1(not, NOT, type, mod)                                                                                                  \
-    MATH_IMPL_OP1_IMM(not, NOT, type, mod)                                                                                              \
+    MATH_IMPL_OP1(not, NOT, type, mod) MATH_IMPL_OP1(neg, NEG, type, mod)                                                               \
     MATH_IMPL_OP2(shl, SHL, type, mod) MATH_IMPL_OP2(shr, SHR, type, mod)
 
 MATH_IMPL_TYPE(tryte,   TC48_TRYTE_VALUES);

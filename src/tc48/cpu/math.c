@@ -44,6 +44,9 @@
         }                                                               \
         return res;                                                     \
     }                                                                   \
+    tc48_##NAME tc48_math_##NAME##_neg(tc48_##NAME a) {                 \
+        return (tc48_##NAME)((VALUES - (a % VALUES)) % VALUES);         \
+    }                                                                   \
     tc48_##NAME tc48_math_##NAME##_shl(tc48_##NAME a, tc48_##NAME b) {  \
         int count = (int)tc48_##NAME##_to_i##SUFFIX(b);                 \
         return tc48_##NAME##_shift(a, count);                           \

@@ -44,6 +44,7 @@ void tc48_cpu_write_reg48(tc48_cpu_regs* regs, tc48_reg_id r, tc48_word val);
     void tc48_cpu_max_##type##_reg (tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2, tc48_trit_state wcfr); \
     void tc48_cpu_rot_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2, tc48_trit_state wcfr);  \
     void tc48_cpu_not_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src, tc48_trit_state wcfr);                     \
+    void tc48_cpu_neg_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src, tc48_trit_state wcfr);                     \
     void tc48_cpu_shl_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2, tc48_trit_state wcfr);  \
     void tc48_cpu_shr_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2, tc48_trit_state wcfr);  \
     void tc48_cpu_add_##type##_reg(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_reg_id src2, tc48_trit_state wcfr);  \
@@ -56,6 +57,7 @@ void tc48_cpu_write_reg48(tc48_cpu_regs* regs, tc48_reg_id r, tc48_word val);
     void tc48_cpu_max_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_##type imm, tc48_trit_state wcfr);   \
     void tc48_cpu_rot_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_##type imm, tc48_trit_state wcfr);   \
     void tc48_cpu_not_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_##type imm, tc48_trit_state wcfr);                     \
+    void tc48_cpu_neg_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_##type imm, tc48_trit_state wcfr);                     \
     void tc48_cpu_shl_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_##type imm, tc48_trit_state wcfr);   \
     void tc48_cpu_shr_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_##type imm, tc48_trit_state wcfr);   \
     void tc48_cpu_add_##type##_imm(tc48_cpu_regs* regs, tc48_reg_id dst, tc48_reg_id src1, tc48_##type imm, tc48_trit_state wcfr);   \
