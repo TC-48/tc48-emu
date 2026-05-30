@@ -67,11 +67,12 @@ static void update_cf(
 void tc48_cpu_dump_regs(tc48_cpu_regs* regs, FILE* out) {
     for (unsigned i = 0; i < TC48_CPU_REGS_COUNT; ++i) {
         char name[4];
-        if      (i == TC48_CPU_REG_PC) strcpy(name, "pc");
-        else if (i == TC48_CPU_REG_CF) strcpy(name, "cf");
+        if      (i == TC48_CPU_REG_IP) strcpy(name, "rip");
+        else if (i == TC48_CPU_REG_CF) strcpy(name, "rcf");
+        else if (i == TC48_CPU_REG_SP) strcpy(name, "rsp");
         else if (i == TC48_CPU_REG_AZ) continue;
         else {
-            snprintf(name, sizeof name, "r%u", i-3);
+            snprintf(name, sizeof name, "r%u", i-TC48_CPU_GPR_BASE);
         }
 
         fprintf(out, "%s = %"PRIu64"\n", name, (tc48_u64b)regs->data[i]);

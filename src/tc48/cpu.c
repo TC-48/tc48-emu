@@ -123,9 +123,9 @@ void tc48_cpu_exec(tc48_cpu* cpu, const tc48_instr* instr) {
 
 void tc48_cpu_step(tc48_cpu* cpu) {
     tc48_instr instr;
-    int off = tc48_decode(cpu->sys->mem, cpu->regs.data[TC48_CPU_REG_PC], &instr);
+    int off = tc48_decode(cpu->sys->mem, cpu->regs.data[TC48_CPU_REG_IP], &instr);
     if (off == 0) exit(1); // TODO: simplified
-    cpu->regs.data[TC48_CPU_REG_PC] += off;
+    cpu->regs.data[TC48_CPU_REG_IP] += off;
 
     tc48_cpu_exec(cpu, &instr);
 }
