@@ -2,7 +2,8 @@
 
 #include <tc48/word.h>
 
-enum tc48_opcode: tc48_quadruplet {
+// NOTE: represented as a quadruplet
+enum tc48_opcode {
     TC48_OP_NOP,  /// no-op; format: NONE
     TC48_OP_HALT, /// halt;  format: NONE
 

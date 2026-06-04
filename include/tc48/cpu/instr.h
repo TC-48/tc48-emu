@@ -5,7 +5,8 @@
 
 #include <tc48/word.h>
 
-enum tc48_instr_format: tc48_doublet {
+// NOTE: represented as a doublet
+enum tc48_instr_format {
     TC48_INSTR_FORMAT_NONE,
     TC48_INSTR_FORMAT_R,
     TC48_INSTR_FORMAT_I,
@@ -15,14 +16,16 @@ enum tc48_instr_format: tc48_doublet {
     TC48_INSTR_FORMAT_RRI,
 };
 
-enum tc48_operand_width: tc48_doublet {
+// NOTE: represented as a doublet
+enum tc48_operand_width {
     TC48_OPERAND_WIDTH_6,
     TC48_OPERAND_WIDTH_12,
     TC48_OPERAND_WIDTH_24,
     TC48_OPERAND_WIDTH_48,
 };
 
-enum tc48_pred: tc48_triplet {
+// NOTE: represented as a triplet
+enum tc48_pred {
     TC48_PRED_AW, /// if AlWays
 
     TC48_PRED_EQ, /// if EQual         (S == 0)
