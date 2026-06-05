@@ -1,4 +1,5 @@
 CC ?= cc
+AR ?= gcc-ar
 BUILD ?= release
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
@@ -20,9 +21,13 @@ OUT_DIR     := out/$(BUILD)
 LIB_DIR     := $(OUT_DIR)/lib
 BIN_DIR     := $(OUT_DIR)/bin
 
-LIB_NAME    := tc48emu
-LIB_STATIC  := $(LIB_DIR)/lib$(LIB_NAME).a
-LIB_SHARED  := $(LIB_DIR)/lib$(LIB_NAME).so
+EMU_LIB_NAME   := tc48emu
+EMU_LIB_STATIC := $(LIB_DIR)/lib$(EMU_LIB_NAME).a
+EMU_LIB_SHARED := $(LIB_DIR)/lib$(EMU_LIB_NAME).so
+
+TVA_LIB_NAME    := tva
+TVA_LIB_STATIC  := $(LIB_DIR)/lib$(TVA_LIB_NAME).a
+TVA_LIB_SHARED  := $(LIB_DIR)/lib$(TVA_LIB_NAME).so
 
 EXE_EXT :=
 ifeq ($(PLATFORM),windows)
@@ -31,23 +36,13 @@ else ifeq ($(PLATFORM),posix)
 	EXE_EXT :=
 endif
 
-TARGET := $(BIN_DIR)/tc48-emu$(EXE_EXT)
+EMU_EXE := $(BIN_DIR)/tc48-emu$(EXE_EXT)
 
 CSTD       := -std=c11
 WARNINGS   := -Wall -Wextra -Werror=implicit-fallthrough
 PIC_CFLAGS := -fPIC
 
 COMMON_CFLAGS := $(CSTD) $(WARNINGS) -I$(INCLUDE_DIR)
-
-ifeq ($(BUILD),debug)
-	CFLAGS := $(COMMON_CFLAGS) -O0 -g -DTC48_DEBUG -fsanitize=address,undefined
-	LDFLAGS := -fsanitize=address,undefined
-else ifeq ($(BUILD),release)
-	CFLAGS := $(COMMON_CFLAGS) -O3 -DNDEBUG
-	LDFLAGS := -flto
-else
-	$(error Unknown BUILD=$(BUILD))
-endif
 
 ifeq ($(PLATFORM),windows)
 	CMD_MKDIR_P = powershell -NoProfile -Command "New-Item -ItemType Directory -Force -Path '$(subst /,\,$(1))'"
@@ -57,30 +52,48 @@ else
 	CMD_RM_RF   = rm -rf "$(1)"
 endif
 
-ALL_C_SRCS := $(call rwildcard,$(SRC_DIR),*.c)
-
-GENERATED_FILES := src/tc48/gen/pow3.c include/tc48/gen/word-lits.h include/tc48/gen/version.h
+GENERATED_FILES  := src/tc48/gen/pow3.c include/tc48/gen/word-lits.h include/tc48/gen/version.h
 GENERATED_C_SRCS := $(filter %.c, $(GENERATED_FILES))
-ALL_C_SRCS := $(sort $(ALL_C_SRCS) $(GENERATED_C_SRCS))
 
-MAIN_C_SRC := $(SRC_DIR)/tc48/main.c
-LIB_C_SRCS := $(filter $(SRC_DIR)/%, $(filter-out $(MAIN_C_SRC), $(ALL_C_SRCS)))
+MAIN_SRC := src/main.c
+EMU_SRCS := $(call rwildcard,src/tc48,*.c) $(GENERATED_C_SRCS)
+TVA_SRCS := $(call rwildcard,src/tva,*.c)
 
-MAIN_OBJ := $(patsubst %.c,$(OBJ_ROOT_DIR)/%.o,$(MAIN_C_SRC))
-LIB_OBJ_STATIC := $(patsubst %.c,$(OBJ_ROOT_DIR)/%.o,$(LIB_C_SRCS))
-LIB_OBJ_SHARED := $(patsubst %.c,$(OBJ_ROOT_DIR)/shared/%.o,$(LIB_C_SRCS))
+EMU_LIB_CORE_OBJS_STATIC := $(patsubst %.c,$(OBJ_ROOT_DIR)/%.o,$(EMU_SRCS))
+EMU_LIB_CORE_OBJS_SHARED := $(patsubst %.c,$(OBJ_ROOT_DIR)/shared/%.o,$(EMU_SRCS))
 
-DEPS := $(patsubst %.c,$(DEP_ROOT_DIR)/%.d,$(ALL_C_SRCS)) \
-        $(patsubst %.c,$(DEP_ROOT_DIR)/shared/%.d,$(LIB_C_SRCS))
+EMU_EXE_OBJS             := $(patsubst %.c,$(OBJ_ROOT_DIR)/%.o,$(MAIN_SRC))
+TVA_OBJS_STATIC          := $(patsubst %.c,$(OBJ_ROOT_DIR)/%.o,$(TVA_SRCS))
+TVA_OBJS_SHARED          := $(patsubst %.c,$(OBJ_ROOT_DIR)/shared/%.o,$(TVA_SRCS))
 
-JFLAG := $(filter -j%,$(MAKEFLAGS))
-ifeq ($(JFLAG),)
-	JFLAG := -j1
+# Include feature configuration
+include make/features.mk
+
+COMMON_CFLAGS += $(FEATURE_CFLAGS)
+
+ifeq ($(BUILD),debug)
+	CFLAGS  := $(COMMON_CFLAGS) -O0 -g -DTC48_DEBUG -fsanitize=address,undefined
+	LDFLAGS := -fsanitize=address,undefined
+else ifeq ($(BUILD),release)
+	CFLAGS  := $(COMMON_CFLAGS) -O3 -DNDEBUG
+	LDFLAGS := -flto
+else
+	$(error Unknown BUILD=$(BUILD))
 endif
 
-.PHONY: all dirs clean run test sharedlib
+EMU_LIB_FULL_OBJS_STATIC := $(EMU_LIB_CORE_OBJS_STATIC) $(FEATURE_OBJS_STATIC)
+EMU_LIB_FULL_OBJS_SHARED := $(EMU_LIB_CORE_OBJS_SHARED) $(FEATURE_OBJS_SHARED)
 
-all: $(GENERATED_FILES) $(TARGET) $(LIB_STATIC) $(LIB_SHARED) test
+ALL_C_SRCS := $(MAIN_SRC) $(EMU_SRCS) $(TVA_SRCS)
+DEPS := $(patsubst %.c,$(DEP_ROOT_DIR)/%.d,$(ALL_C_SRCS)) \
+        $(patsubst %.c,$(DEP_ROOT_DIR)/shared/%.d,$(filter-out $(MAIN_SRC),$(ALL_C_SRCS)))
+
+.PHONY: all clean run test sharedlib libtva libtc48emu
+
+all: $(GENERATED_FILES) $(EMU_EXE) $(EMU_LIB_STATIC) $(EMU_LIB_SHARED) test
+
+libtc48emu: $(EMU_LIB_STATIC) $(EMU_LIB_SHARED)
+libtva: $(TVA_LIB_STATIC) $(TVA_LIB_SHARED)
 
 src/tc48/gen/pow3.c: scripts/gen/pow3.py
 include/tc48/gen/word-lits.h: scripts/gen/word-lits.py
@@ -91,17 +104,28 @@ $(GENERATED_FILES):
 	@$(call CMD_MKDIR_P,$(dir $@))
 	@python3 $< > $@
 
-$(LIB_STATIC): $(LIB_OBJ_STATIC)
+# libtc48emu 
+$(EMU_LIB_STATIC): $(EMU_LIB_FULL_OBJS_STATIC)
 	@$(call CMD_MKDIR_P,$(dir $@))
-	ar rcs $@ $^
+	$(AR) rcs $@ $^
 
-$(LIB_SHARED): $(LIB_OBJ_SHARED)
+$(EMU_LIB_SHARED): $(EMU_LIB_FULL_OBJS_SHARED)
 	@$(call CMD_MKDIR_P,$(dir $@))
 	$(CC) -shared $^ $(LDFLAGS) -o $@
 
-$(TARGET): $(LIB_STATIC) $(MAIN_OBJ)
+# libtva 
+$(TVA_LIB_STATIC): $(TVA_OBJS_STATIC)
 	@$(call CMD_MKDIR_P,$(dir $@))
-	$(CC) $(MAIN_OBJ) $(LIB_STATIC) $(LDFLAGS) -o $@
+	$(AR) rcs $@ $^
+
+$(TVA_LIB_SHARED): $(TVA_OBJS_SHARED)
+	@$(call CMD_MKDIR_P,$(dir $@))
+	$(CC) -shared $^ $(LDFLAGS) -o $@
+
+# main tc48-emu executable 
+$(EMU_EXE): $(EMU_EXE_OBJS) $(EMU_LIB_STATIC)
+	@$(call CMD_MKDIR_P,$(dir $@))
+	$(CC) $^ $(LDFLAGS) -o $@
 
 $(OBJ_ROOT_DIR)/%.o: %.c
 	@$(call CMD_MKDIR_P,$(dir $@))
@@ -113,12 +137,14 @@ $(OBJ_ROOT_DIR)/shared/%.o: %.c
 	@$(call CMD_MKDIR_P,$(DEP_ROOT_DIR)/shared/$(dir $<))
 	$(CC) $(CFLAGS) $(PIC_CFLAGS) -MMD -MP -MF $(DEP_ROOT_DIR)/shared/$*.d -c $< -o $@
 
-$(MAIN_OBJ) $(LIB_OBJ_STATIC) $(LIB_OBJ_SHARED): $(GENERATED_FILES)
+$(EMU_EXE_OBJS) $(EMU_LIB_CORE_OBJS_STATIC) \
+$(EMU_LIB_CORE_OBJS_SHARED) $(TVA_OBJS_STATIC) \
+$(TVA_OBJS_SHARED): $(GENERATED_FILES)
 
 run: all
-	$(TARGET)
+	$(EMU_EXE)
 
-sharedlib: $(LIB_SHARED)
+sharedlib: $(EMU_LIB_SHARED)
 
 include tests/build.mk
 

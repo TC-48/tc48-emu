@@ -1,6 +1,11 @@
 #include <tc48/system.h>
 #include <stdlib.h>
 
+#include <tc48/features.h>
+#if TC48_HAS_FEATURE(tva)
+#   include <tva/tva.h>
+#endif
+
 // NOTE: currently we only step the first CPU as a placeholder
 // TODO: add scheduler
 
@@ -8,6 +13,10 @@ void tc48_system_init(tc48_system* sys, size_t mem_size) {
     sys->mem = tc48_mem_alloc(mem_size);
     sys->cpus[0].sys = sys;
     tc48_cpu_init(&sys->cpus[0]);
+
+#if TC48_HAS_FEATURE(tva)
+    tva_test();
+#endif
 }
 
 void tc48_system_deinit(tc48_system* sys) {
