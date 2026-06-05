@@ -83,6 +83,59 @@ void tc48_cpu_reset(tc48_cpu* cpu) {
     }                                                     \
     break;
 
+static tc48_word sign_extend(tc48_word val, tc48_u128b mod) {
+    if (val > mod / 2) {
+        return TC48_WORD_VALUES - (mod - val);
+    }
+    return val;
+}
+
+static void update_load_flags(tc48_cpu* cpu, tc48_trit_state wcfr, tc48_word res, tc48_u128b mod) {
+    if (wcfr == TC48_WCFR_NONE) return;
+    tc48_word* cf = &cpu->regs.data[TC48_CPU_REG_CF];
+
+    tc48_trit_state res_status;
+    if (res == 0) res_status = TC48_CF_S_ZERO;
+    else if (res <= mod / 2) res_status = TC48_CF_S_POS;
+    else res_status = TC48_CF_S_NEG;
+
+    tc48_word_set_trit(cf, TC48_CF_TRIT_S, res_status);
+}
+
+#define EXEC_LOAD_OP(INSTR, WIDTH, TYPE, MOD) {                                                                 \
+    tc48_reg_id r1 = INSTR->format == TC48_INSTR_FORMAT_RRR ? INSTR->operands.rrr.r1 : INSTR->operands.rri.r1;  \
+    tc48_reg_id r2 = INSTR->format == TC48_INSTR_FORMAT_RRR ? INSTR->operands.rrr.r2 : INSTR->operands.rri.r2;  \
+    tc48_##TYPE off = INSTR->format == TC48_INSTR_FORMAT_RRR                                                    \
+            ? tc48_cpu_read_reg##WIDTH(&cpu->regs, INSTR->operands.rrr.r3)                                      \
+            : INSTR->operands.rri.imm.i##WIDTH;                                                                 \
+                                                                                                                \
+    tc48_word addr = tc48_math_word_add(tc48_cpu_read_reg48(&cpu->regs, r2), sign_extend((tc48_word)off, MOD)); \
+    tc48_##TYPE res = tc48_mem_load##WIDTH(cpu->sys->mem, addr);                                                \
+    tc48_cpu_write_reg##WIDTH(&cpu->regs, r1, res);                                                             \
+    update_load_flags(cpu, INSTR->wcfr, (tc48_word)res, MOD);                                                   \
+}
+
+#define EXEC_STORE_OP(INSTR, WIDTH, TYPE, MOD) {                                                                \
+    tc48_reg_id r1 = INSTR->format == TC48_INSTR_FORMAT_RRR ? INSTR->operands.rrr.r1 : INSTR->operands.rri.r1;  \
+    tc48_reg_id r2 = INSTR->format == TC48_INSTR_FORMAT_RRR ? INSTR->operands.rrr.r2 : INSTR->operands.rri.r2;  \
+    tc48_##TYPE off = INSTR->format == TC48_INSTR_FORMAT_RRR                                                    \
+            ? tc48_cpu_read_reg##WIDTH(&cpu->regs, INSTR->operands.rrr.r3)                                      \
+            : INSTR->operands.rri.imm.i##WIDTH;                                                                 \
+                                                                                                                \
+    tc48_word addr = tc48_math_word_add(tc48_cpu_read_reg48(&cpu->regs, r2), sign_extend((tc48_word)off, MOD)); \
+    tc48_##TYPE val = tc48_cpu_read_reg##WIDTH(&cpu->regs, r1);                                                 \
+    tc48_mem_store##WIDTH(cpu->sys->mem, addr, val);                                                            \
+}
+
+#define EXEC_MEMORY_OP(INSTR, OP_NAME)                                                                 \
+    switch ((INSTR)->width) {                                                                          \
+    case TC48_OPERAND_WIDTH_6:  EXEC_##OP_NAME##_OP((INSTR), 6,  tryte,   TC48_TRYTE_VALUES);   break; \
+    case TC48_OPERAND_WIDTH_12: EXEC_##OP_NAME##_OP((INSTR), 12, quarter, TC48_QUARTER_VALUES); break; \
+    case TC48_OPERAND_WIDTH_24: EXEC_##OP_NAME##_OP((INSTR), 24, half,    TC48_HALF_VALUES);    break; \
+    case TC48_OPERAND_WIDTH_48: EXEC_##OP_NAME##_OP((INSTR), 48, word,    TC48_WORD_VALUES);    break; \
+    }                                                                                                  \
+    break;
+
 void tc48_cpu_exec(tc48_cpu* cpu, const tc48_instr* instr) {
     if (!tc48_cpu_check_pred(cpu, instr->pred)) {
         return;
@@ -111,9 +164,11 @@ void tc48_cpu_exec(tc48_cpu* cpu, const tc48_instr* instr) {
 
     case TC48_OP_NOT:  EXEC_RI_OR_RR_OP(instr, not);
     case TC48_OP_NEG:  EXEC_RI_OR_RR_OP(instr, neg);
+
+    case TC48_OP_LOAD:  EXEC_MEMORY_OP(instr, LOAD);
+    case TC48_OP_STORE: EXEC_MEMORY_OP(instr, STORE);
     }
 }
-
 
 void tc48_cpu_step(tc48_cpu* cpu) {
     tc48_instr instr;
