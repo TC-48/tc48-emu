@@ -1,4 +1,5 @@
 #include <criterion/criterion.h>
+#include <stdio.h>
 
 #include <tc48/mem.h>
 #include <tc48/word.h>
@@ -63,4 +64,25 @@ Test(mem, load_store_48) {
     cr_assert_eq(tc48_mem_load48(mem, addr), val);
 
     tc48_mem_free(mem);
+}
+
+Test(mem, save_open_symmetry) {
+    tc48_memory* mem_src = tc48_mem_alloc(100);
+    for (tc48_word i = 0; i < 100; i++) {
+        tc48_mem_store6(mem_src, i, (tc48_tryte)(i * 3 + 1));
+    }
+
+    const char* test_file = "test_mem_save_open.bin";
+    tc48_mem_save(mem_src, test_file);
+
+    tc48_memory* mem_dst = tc48_mem_alloc(100);
+    tc48_mem_open(mem_dst, test_file);
+
+    for (tc48_word i = 0; i < 100; i++) {
+        cr_assert_eq(tc48_mem_load6(mem_dst, i), tc48_mem_load6(mem_src, i));
+    }
+
+    tc48_mem_free(mem_src);
+    tc48_mem_free(mem_dst);
+    remove(test_file);
 }

@@ -20,13 +20,14 @@ void tc48_mem_free(tc48_memory* mem) {
 }
 
 // TODO: better error handling
-void tc48_mem_load_file(tc48_memory* mem, const char* path) {
+void tc48_mem_open(tc48_memory* mem, const char* path) {
     FILE* f = fopen(path, "rb");
     if (!f) return;
 
     char magic[4];
     if (fread(magic, 1, 4, f) != 4 || memcmp(magic, "T48B", 4) != 0) {
-        fputs("error: invalid T48B magic", stderr);
+        fputs("error: invalid T48B magic\n", stderr);
+        fclose(f);
         return;
     }
 
@@ -35,7 +36,24 @@ void tc48_mem_load_file(tc48_memory* mem, const char* path) {
     fseek(f, 4, SEEK_SET);
 
     size_t tryte_count = (size - 4) / sizeof(tc48_tryte);
+    if (tryte_count > mem->size) {
+        tryte_count = mem->size;
+    }
     fread(mem->data, sizeof(tc48_tryte), tryte_count, f);
+    fclose(f);
+}
+
+void tc48_mem_save(const tc48_memory* mem, const char* path) {
+    FILE* f = fopen(path, "wb");
+    if (!f) return;
+
+    if (fwrite("T48B", 1, 4, f) != 4) {
+        fputs("error: failed to write magic\n", stderr);
+        fclose(f);
+        return;
+    }
+
+    fwrite(mem->data, sizeof(tc48_tryte), mem->size, f);
     fclose(f);
 }
 
