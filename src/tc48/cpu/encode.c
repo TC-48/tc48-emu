@@ -43,6 +43,11 @@ static void _encode_imm(tc48_memory* mem, tc48_word* addr, tc48_doublet width, c
     }
 }
 
+static void _encode_addr(tc48_memory* mem, tc48_word* addr, tc48_word in_addr) {
+    tc48_mem_store48(mem, *addr, in_addr);
+    *addr += 8;
+}
+
 tc48_word tc48_encode(tc48_memory* mem, tc48_word addr, const tc48_instr* instr) {
     tc48_word start_addr = addr;
 
@@ -62,9 +67,6 @@ tc48_word tc48_encode(tc48_memory* mem, tc48_word addr, const tc48_instr* instr)
     case TC48_INSTR_FORMAT_R:
         _encode_reg(mem, &addr, &instr->operands.r.r1);
         break;
-    case TC48_INSTR_FORMAT_I:
-        _encode_imm(mem, &addr, instr->width, &instr->operands.i.imm);
-        break;
     case TC48_INSTR_FORMAT_RR:
         _encode_reg(mem, &addr, &instr->operands.rr.r1);
         _encode_reg(mem, &addr, &instr->operands.rr.r2);
@@ -82,6 +84,11 @@ tc48_word tc48_encode(tc48_memory* mem, tc48_word addr, const tc48_instr* instr)
         _encode_reg(mem, &addr, &instr->operands.rri.r1);
         _encode_reg(mem, &addr, &instr->operands.rri.r2);
         _encode_imm(mem, &addr, instr->width, &instr->operands.rri.imm);
+        break;
+    case TC48_INSTR_FORMAT_RRA:
+        _encode_reg(mem, &addr, &instr->operands.rra.r1);
+        _encode_reg(mem, &addr, &instr->operands.rra.r2);
+        _encode_addr(mem, &addr, instr->operands.rra.addr);
         break;
     default:
         return 0;

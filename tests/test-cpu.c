@@ -20,12 +20,6 @@ static void assert_instr_eq(const tc48_instr* a, const tc48_instr* b) {
         cr_assert_eq(a->operands.r.r1.base, b->operands.r.r1.base);
         cr_assert_eq(a->operands.r.r1.lane, b->operands.r.r1.lane);
         break;
-    case TC48_INSTR_FORMAT_I:
-        if (a->width == TC48_OPERAND_WIDTH_6) cr_assert_eq(a->operands.i.imm.i6, b->operands.i.imm.i6);
-        else if (a->width == TC48_OPERAND_WIDTH_12) cr_assert_eq(a->operands.i.imm.i12, b->operands.i.imm.i12);
-        else if (a->width == TC48_OPERAND_WIDTH_24) cr_assert_eq(a->operands.i.imm.i24, b->operands.i.imm.i24);
-        else if (a->width == TC48_OPERAND_WIDTH_48) cr_assert(a->operands.i.imm.i48 == b->operands.i.imm.i48);
-        break;
     case TC48_INSTR_FORMAT_RR:
         cr_assert_eq(a->operands.rr.r1.base, b->operands.rr.r1.base);
         cr_assert_eq(a->operands.rr.r1.lane, b->operands.rr.r1.lane);
@@ -57,6 +51,13 @@ static void assert_instr_eq(const tc48_instr* a, const tc48_instr* b) {
         else if (a->width == TC48_OPERAND_WIDTH_12) cr_assert_eq(a->operands.rri.imm.i12, b->operands.rri.imm.i12);
         else if (a->width == TC48_OPERAND_WIDTH_24) cr_assert_eq(a->operands.rri.imm.i24, b->operands.rri.imm.i24);
         else if (a->width == TC48_OPERAND_WIDTH_48) cr_assert(a->operands.rri.imm.i48 == b->operands.rri.imm.i48);
+        break;
+    case TC48_INSTR_FORMAT_RRA:
+        cr_assert_eq(a->operands.rra.r1.base, b->operands.rra.r1.base);
+        cr_assert_eq(a->operands.rra.r1.lane, b->operands.rra.r1.lane);
+        cr_assert_eq(a->operands.rra.r2.base, b->operands.rra.r2.base);
+        cr_assert_eq(a->operands.rra.r2.lane, b->operands.rra.r2.lane);
+        cr_assert_eq(a->operands.rra.addr,    b->operands.rra.addr);
         break;
     }
 }

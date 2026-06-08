@@ -35,6 +35,11 @@ static void _decode_imm(const tc48_memory* mem, tc48_word* addr, tc48_doublet wi
     }
 }
 
+static void _decode_addr(const tc48_memory* mem, tc48_word* addr, tc48_word* out_addr) {
+    *out_addr = tc48_mem_load48(mem, *addr);
+    *addr += 8;
+}
+
 tc48_word tc48_decode(const tc48_memory* mem, tc48_word addr, tc48_instr* instr) {
     tc48_word start_addr = addr;
     tc48_quarter header = tc48_mem_load12(mem, addr);
@@ -51,9 +56,6 @@ tc48_word tc48_decode(const tc48_memory* mem, tc48_word addr, tc48_instr* instr)
         break;
     case TC48_INSTR_FORMAT_R:
         _decode_reg(mem, &addr, &instr->operands.r.r1);
-        break;
-    case TC48_INSTR_FORMAT_I:
-        _decode_imm(mem, &addr, instr->width, &instr->operands.i.imm);
         break;
     case TC48_INSTR_FORMAT_RR:
         _decode_reg(mem, &addr, &instr->operands.rr.r1);
@@ -72,6 +74,11 @@ tc48_word tc48_decode(const tc48_memory* mem, tc48_word addr, tc48_instr* instr)
         _decode_reg(mem, &addr, &instr->operands.rri.r1);
         _decode_reg(mem, &addr, &instr->operands.rri.r2);
         _decode_imm(mem, &addr, instr->width, &instr->operands.rri.imm);
+        break;
+    case TC48_INSTR_FORMAT_RRA:
+        _decode_reg(mem, &addr, &instr->operands.rra.r1);
+        _decode_reg(mem, &addr, &instr->operands.rra.r2);
+        _decode_addr(mem, &addr, &instr->operands.rra.addr);
         break;
     default:
         return 0;

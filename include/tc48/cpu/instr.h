@@ -9,7 +9,7 @@
 enum tc48_instr_format {
     TC48_INSTR_FORMAT_NONE,
     TC48_INSTR_FORMAT_R,
-    TC48_INSTR_FORMAT_I,
+    TC48_INSTR_FORMAT_RRA,
     TC48_INSTR_FORMAT_RR,
     TC48_INSTR_FORMAT_RRR,
     TC48_INSTR_FORMAT_RI,
@@ -63,9 +63,6 @@ typedef struct tc48_instr {
             tc48_reg_id r1;
         } r;
         struct {
-            tc48_imm imm;
-        } i;
-        struct {
             tc48_reg_id r1;
             tc48_reg_id r2;
         } rr;
@@ -83,5 +80,10 @@ typedef struct tc48_instr {
             tc48_reg_id r2;
             tc48_imm imm;
         } rri;
+        struct {
+            tc48_reg_id r1;
+            tc48_reg_id r2;
+            tc48_word addr;
+        } rra;
      } operands;
 } tc48_instr;
