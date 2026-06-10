@@ -1,11 +1,11 @@
 #pragma once
 
 #include <tc48/cpu.h>
-#include <tc48/mem.h>
+#include <tc48/bus.h>
 
 typedef struct tc48_system {
     tc48_cpu cpus[256];
-    tc48_memory* mem;
+    tc48_bus bus;
 } tc48_system;
 
 void tc48_system_init(tc48_system* sys, size_t mem_size);

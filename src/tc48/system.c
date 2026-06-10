@@ -10,7 +10,9 @@
 // TODO: add scheduler
 
 void tc48_system_init(tc48_system* sys, size_t mem_size) {
-    sys->mem = tc48_mem_alloc(mem_size);
+    tc48_memory* mem = tc48_mem_alloc(mem_size);
+    tc48_bus_init(&sys->bus, mem);
+
     sys->cpus[0].sys = sys;
     tc48_cpu_init(&sys->cpus[0]);
 
@@ -21,10 +23,11 @@ void tc48_system_init(tc48_system* sys, size_t mem_size) {
 
 void tc48_system_deinit(tc48_system* sys) {
     tc48_cpu_deinit(&sys->cpus[0]);
-    if (sys->mem) {
-        tc48_mem_free(sys->mem);
-        sys->mem = NULL;
+    if (sys->bus.mem) {
+        tc48_mem_free(sys->bus.mem);
+        sys->bus.mem = NULL;
     }
+    tc48_bus_deinit(&sys->bus);
 }
 
 void tc48_system_reset(tc48_system* sys) {

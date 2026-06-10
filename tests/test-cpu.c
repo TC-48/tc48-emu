@@ -64,13 +64,14 @@ static void assert_instr_eq(const tc48_instr* a, const tc48_instr* b) {
 
 static void test_symmetry(const tc48_instr* orig) {
     tc48_memory* mem = tc48_mem_alloc(100);
+    tc48_bus bus; tc48_bus_init(&bus, mem);
 
     tc48_word enc_len = tc48_encode(mem, 10, orig);
     cr_assert(enc_len > 0);
 
     tc48_instr decoded;
     memset(&decoded, 0, sizeof(decoded));
-    tc48_word dec_len = tc48_decode(mem, 10, &decoded);
+    tc48_word dec_len = tc48_decode(&bus, 10, &decoded);
 
     cr_assert_eq(enc_len, dec_len);
     assert_instr_eq(orig, &decoded);

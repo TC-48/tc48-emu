@@ -6,8 +6,7 @@ int main(int argc, char** argv) {
     tc48_system_init(&sys, 729);
 
     if (argc > 1) {
-        tc48_mem_open(sys.mem, argv[1]);
-        tc48_mem_dump(sys.mem, 0, 16);
+        tc48_mem_open(sys.bus.mem, argv[1]);
     }
 
     while (true) {
