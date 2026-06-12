@@ -39,7 +39,7 @@ endif
 EMU_EXE := $(BIN_DIR)/tc48-emu$(EXE_EXT)
 
 CSTD       := -std=c11
-WARNINGS   := -Wall -Wextra -Werror=implicit-fallthrough
+WARNINGS   := -Wall -Wextra -Werror=implicit-fallthrough -Wno-old-style-declaration
 PIC_CFLAGS := -fPIC
 
 COMMON_CFLAGS := $(CSTD) $(WARNINGS) -I$(INCLUDE_DIR)
@@ -104,7 +104,7 @@ $(GENERATED_FILES):
 	@$(call CMD_MKDIR_P,$(dir $@))
 	@python3 $< > $@
 
-# libtc48emu 
+# libtc48emu
 $(EMU_LIB_STATIC): $(EMU_LIB_FULL_OBJS_STATIC)
 	@$(call CMD_MKDIR_P,$(dir $@))
 	$(AR) rcs $@ $^
@@ -113,7 +113,7 @@ $(EMU_LIB_SHARED): $(EMU_LIB_FULL_OBJS_SHARED)
 	@$(call CMD_MKDIR_P,$(dir $@))
 	$(CC) -shared $^ $(LDFLAGS) -o $@
 
-# libtva 
+# libtva
 $(TVA_LIB_STATIC): $(TVA_OBJS_STATIC)
 	@$(call CMD_MKDIR_P,$(dir $@))
 	$(AR) rcs $@ $^
@@ -122,7 +122,7 @@ $(TVA_LIB_SHARED): $(TVA_OBJS_SHARED)
 	@$(call CMD_MKDIR_P,$(dir $@))
 	$(CC) -shared $^ $(LDFLAGS) -o $@
 
-# main tc48-emu executable 
+# main tc48-emu executable
 $(EMU_EXE): $(EMU_EXE_OBJS) $(EMU_LIB_STATIC)
 	@$(call CMD_MKDIR_P,$(dir $@))
 	$(CC) $^ $(LDFLAGS) -o $@

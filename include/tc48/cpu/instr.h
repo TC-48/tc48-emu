@@ -87,3 +87,5 @@ typedef struct tc48_instr {
         } rra;
      } operands;
 } tc48_instr;
+
+typedef enum tc48_operand_width tc48_width;
