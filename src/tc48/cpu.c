@@ -152,7 +152,7 @@ static void update_load_flags(tc48_cpu* cpu, tc48_trit_state wcfr, tc48_word res
     tc48_bus_out##WIDTH(&cpu->sys->bus, addr, val);                                                               \
 }
 
-#define EXEC_MEMORY_OP(INSTR, OP_NAME)                                                                 \
+#define EXEC_MEM_OR_IO_OP(INSTR, OP_NAME)                                                              \
     switch ((INSTR)->width) {                                                                          \
     case TC48_OPERAND_WIDTH_6:  EXEC_##OP_NAME##_OP((INSTR), 6,  tryte,   TC48_TRYTE_VALUES);   break; \
     case TC48_OPERAND_WIDTH_12: EXEC_##OP_NAME##_OP((INSTR), 12, quarter, TC48_QUARTER_VALUES); break; \
@@ -190,10 +190,10 @@ void tc48_cpu_exec(tc48_cpu* cpu, const tc48_instr* instr) {
     case TC48_OP_NOT:  EXEC_RI_OR_RR_OP(instr, not);
     case TC48_OP_NEG:  EXEC_RI_OR_RR_OP(instr, neg);
 
-    case TC48_OP_LOAD:  EXEC_MEMORY_OP(instr, LOAD);
-    case TC48_OP_STORE: EXEC_MEMORY_OP(instr, STORE);
-    case TC48_OP_IN:    EXEC_MEMORY_OP(instr, IN);
-    case TC48_OP_OUT:   EXEC_MEMORY_OP(instr, OUT);
+    case TC48_OP_LOAD:  EXEC_MEM_OR_IO_OP(instr, LOAD);
+    case TC48_OP_STORE: EXEC_MEM_OR_IO_OP(instr, STORE);
+    case TC48_OP_IN:    EXEC_MEM_OR_IO_OP(instr, IN);
+    case TC48_OP_OUT:   EXEC_MEM_OR_IO_OP(instr, OUT);
     }
 }
 

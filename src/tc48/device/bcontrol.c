@@ -28,7 +28,7 @@ static tc48_word bus_controller_in(tc48_device* self, tc48_word offset, tc48_wid
     switch (offset) {
     case TC48_BCONTROL_IN_DEVICE_COUNT:
         return (tc48_word)bus->device_count;
-    case TC48_BCONTROL_IN_SELECT_INDEX:
+    case TC48_BCONTROL_IN_SELECTED_INDEX:
         return state->select_index;
 
     case TC48_BCONTROL_IN_SELECTED_TYPE:
