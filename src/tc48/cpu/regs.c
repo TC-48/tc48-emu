@@ -5,6 +5,7 @@
 #include <tc48/cpu/opcode.h>
 
 #include <inttypes.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -14,8 +15,8 @@
             : TC48_CF_S_NEG)
 
 static void update_cf(
-    tc48_cpu_regs* regs, tc48_trit_state wcfr, 
-    tc48_word res, tc48_word a, tc48_word b, 
+    tc48_cpu_regs* regs, tc48_trit_state wcfr,
+    tc48_word res, tc48_word a, tc48_word b,
     tc48_u128b mod, int op
 ) {
     if (wcfr == TC48_WCFR_NONE) return;
@@ -58,7 +59,7 @@ static void update_cf(
     }
     case TC48_OP_UMUL:
         if (a != 0 && (tc48_u128b)res / a != b) c = TC48_CF_C_CARRY;
-        break; 
+        break;
     }
     tc48_word_set_trit(cf, TC48_CF_TRIT_C, c);
     tc48_word_set_trit(cf, TC48_CF_TRIT_V, v);
@@ -71,9 +72,9 @@ void tc48_cpu_dump_regs(tc48_cpu_regs* regs, FILE* out) {
         else if (i == TC48_CPU_REG_CF) strcpy(name, "rcf");
         else if (i == TC48_CPU_REG_SP) strcpy(name, "rsp");
         else if (i == TC48_CPU_REG_AZ) continue;
-        else {
+        else if (i >= TC48_CPU_GPR_BASE) {
             snprintf(name, sizeof name, "r%u", i-TC48_CPU_GPR_BASE);
-        }
+        } else continue;
 
         fprintf(out, "%s = %"PRIu64"\n", name, (tc48_u64b)regs->data[i]);
         if (regs->data[i] == 0) continue;
@@ -97,16 +98,35 @@ void tc48_cpu_dump_regs(tc48_cpu_regs* regs, FILE* out) {
     }
 }
 
+static tc48_usize check_reg(tc48_reg_id r, const char* op) {
+    const char* err =
+        r.base >= TC48_CPU_SPR_COUNT && r.base < TC48_CPU_GPR_BASE
+        ? "reserved"
+        : r.base >= TC48_CPU_REGS_COUNT
+        ? "out of range"
+        : NULL;
+
+    if (err) {
+        // TODO: raise cpu exception or something. the problem is that we don't have exceptions.
+        fprintf(stderr, "%s of %s register base %u\n", op, err, (unsigned)r.base);
+        exit(1);
+    }
+
+    // TODO: maybe we should also validate lane, but im unsure
+
+    return (tc48_usize)r.base;
+}
+
 #define GEN_ACCESSORS(name, type, bits, values)                            \
     static type get_##name(tc48_cpu_regs* regs, tc48_reg_id r) {           \
-        tc48_usize idx = r.base;                                           \
+        tc48_usize idx = check_reg(r, "read");                             \
         if (idx == TC48_CPU_REG_AZ) return 0;                              \
         tc48_usize off = (TC48_WORD_TRITS - (r.lane + 1) * bits);          \
         tc48_word w = regs->data[idx];                                     \
         return (type)((w / tc48_pow3_u128[off]) % (values));               \
     }                                                                      \
     static void set_##name(tc48_cpu_regs* regs, tc48_reg_id r, type val) { \
-        tc48_usize idx = r.base;                                           \
+        tc48_usize idx = check_reg(r, "write");                            \
         if (idx == TC48_CPU_REG_AZ) return;                                \
         tc48_usize off = (TC48_WORD_TRITS - (r.lane + 1) * bits);          \
         tc48_u128b p = tc48_pow3_u128[off];                                \
