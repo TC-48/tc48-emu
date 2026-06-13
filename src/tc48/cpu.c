@@ -166,7 +166,7 @@ void tc48_cpu_exec(tc48_cpu* cpu, const tc48_instr* instr) {
         return;
     }
 
-    printf("format:%d width:%d opcode:%d\n", instr->format, instr->width, instr->opcode);
+    //printf("format:%d width:%d opcode:%d\n", instr->format, instr->width, instr->opcode);
     switch ((enum tc48_opcode)instr->opcode) {
     case TC48_OP_NOP: break;
     case TC48_OP_HALT: {
