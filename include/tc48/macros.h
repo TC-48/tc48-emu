@@ -49,7 +49,7 @@
 } while (0)
 
 #ifdef TC48_DEBUG
-    #dfine TC48_ASSERT(EXPR, MSG) TC48_ASSERT_ALWAYS(EXPR, MSG)
+    #define TC48_ASSERT(EXPR, MSG) TC48_ASSERT_ALWAYS(EXPR, MSG)
 #else
     #define TC48_ASSERT(EXPR, MSG) ((void)0)
 #endif

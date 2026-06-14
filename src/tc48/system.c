@@ -17,13 +17,10 @@ void tc48_system_init(tc48_system* sys, size_t mem_size) {
     tc48_bus_init(&sys->bus, mem);
     tc48_bus_register_device(&sys->bus, &tc48_bus_controller_class, 0);
     tc48_bus_register_device_auto(&sys->bus, &tc48_stub_device_class);
+    tc48_bus_register_device_auto(&sys->bus, &tva_device_class);
 
     sys->cpus[0].sys = sys;
     tc48_cpu_init(&sys->cpus[0]);
-
-#if TC48_HAS_FEATURE(tva)
-    tva_test();
-#endif
 }
 
 void tc48_system_deinit(tc48_system* sys) {

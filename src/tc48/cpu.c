@@ -17,6 +17,7 @@ void tc48_cpu_deinit(tc48_cpu* cpu) { (void) cpu; }
 
 void tc48_cpu_reset(tc48_cpu* cpu) {
     memset(&cpu->regs.data, 0, sizeof cpu->regs.data);
+    cpu->halted = false;
 }
 
 #define EXEC_RRR_OP(OP)                                                                                                                      \
@@ -171,7 +172,8 @@ void tc48_cpu_exec(tc48_cpu* cpu, const tc48_instr* instr) {
     case TC48_OP_NOP: break;
     case TC48_OP_HALT: {
         tc48_cpu_dump_regs(&cpu->regs, stdout);
-        exit(1);
+        cpu->halted = true;
+        break;
     }
 
     case TC48_OP_ADD:  EXEC_RRI_OR_RRR_OP(instr, add);
