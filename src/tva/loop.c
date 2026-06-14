@@ -3,6 +3,8 @@
 
 #include "internal.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define INCBIN_PREFIX
 #define INCBIN_STYLE INCBIN_STYLE_SNAKE
@@ -66,6 +68,43 @@ static void tva_render_text(SDL_Renderer* renderer, SDL_Texture* font_tex, tva_t
     }
 }
 
+static void tva_sync_buffers(tva_dev_state* state, tva_textbuf* local_text, tva_mode* local_mode) {
+    SDL_LockMutex(state->mutex);
+    *local_mode = state->mode;
+    if (*local_mode == TVA_MODE_TEXT) {
+        tva_textbuf* src = &state->as.text;
+        if (src->cells != NULL) {
+            int cells_count = (int)src->w * (int)src->h;
+            if (local_text->cells == NULL || local_text->w != src->w || local_text->h != src->h) {
+                void* new_cells = realloc(local_text->cells, sizeof(tc48_quarter) * cells_count);
+                if (new_cells != NULL) {
+                    local_text->cells = new_cells;
+                    local_text->w = src->w;
+                    local_text->h = src->h;
+                }
+            }
+            if (local_text->cells != NULL) {
+                local_text->cpos = src->cpos;
+                memcpy(local_text->cells, src->cells, sizeof(tc48_quarter) * cells_count);
+            }
+        }
+    }
+    SDL_UnlockMutex(state->mutex);
+}
+
+static void tva_draw(SDL_Renderer* renderer, SDL_Texture* font_tex, tva_mode mode, tva_textbuf* local_text) {
+    if (mode == TVA_MODE_TEXT) {
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+        if (local_text->cells != NULL) {
+            tva_render_text(renderer, font_tex, local_text);
+        }
+    } else {
+        SDL_SetRenderDrawColor(renderer, 33, 150, 243, 255);
+        SDL_RenderClear(renderer);
+    }
+}
+
 int tva_loop(void* ctx) {
     tva_dev_state* state = ctx;
     SDL_Window* window = SDL_CreateWindow(
@@ -90,6 +129,9 @@ int tva_loop(void* ctx) {
         fprintf(stderr, "[TVA] failed to load font texture: %s\n", SDL_GetError());
     }
 
+    tva_textbuf local_text = {0};
+    tva_mode local_mode = TVA_MODE_NONE;
+
     SDL_Event event;
     while (SDL_GetAtomicInt(&state->running)) {
         while (SDL_PollEvent(&event)) {
@@ -99,21 +141,14 @@ int tva_loop(void* ctx) {
             }
         }
 
-        SDL_LockMutex(state->mutex);
-        if (state->mode == TVA_MODE_TEXT) {
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-            SDL_RenderClear(renderer);
-            tva_render_text(renderer, font_tex, &state->as.text);
-        } else {
-            SDL_SetRenderDrawColor(renderer, 33, 150, 243, 255);
-            SDL_RenderClear(renderer);
-        }
-        SDL_UnlockMutex(state->mutex);
-
+        tva_sync_buffers(state, &local_text, &local_mode);
+        tva_draw(renderer, font_tex, local_mode, &local_text);
         SDL_RenderPresent(renderer);
 
         SDL_Delay(16);
     }
+
+    free(local_text.cells);
 
     if (font_tex) SDL_DestroyTexture(font_tex);
     SDL_DestroyRenderer(renderer);

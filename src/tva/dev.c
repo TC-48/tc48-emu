@@ -64,7 +64,7 @@ static void tva_dev_out(tc48_device* self, tc48_word offset, tc48_width width, t
             t->h = value;
         } else {
             t->w = (tc48_quarter)((tc48_half)value / TC48_QUARTER_VALUES);
-            t->w = (tc48_quarter)((tc48_half)value % TC48_QUARTER_VALUES);
+            t->h = (tc48_quarter)((tc48_half)value % TC48_QUARTER_VALUES);
         }
 
         t->cpos = 0;
