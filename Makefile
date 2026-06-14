@@ -12,6 +12,7 @@ endif
 
 SRC_DIR     := src
 TEST_DIR    := tests
+DEPS_DIR    := deps
 INCLUDE_DIR := include
 
 OBJ_ROOT_DIR := build/$(BUILD)/obj
@@ -42,7 +43,7 @@ CSTD       := -std=c11
 WARNINGS   := -Wall -Wextra -Werror=implicit-fallthrough -Wno-old-style-declaration
 PIC_CFLAGS := -fPIC
 
-COMMON_CFLAGS := $(CSTD) $(WARNINGS) -I$(INCLUDE_DIR)
+COMMON_CFLAGS := $(CSTD) $(WARNINGS) -I$(INCLUDE_DIR) -I$(DEPS_DIR)
 
 ifeq ($(PLATFORM),windows)
 	CMD_MKDIR_P = powershell -NoProfile -Command "New-Item -ItemType Directory -Force -Path '$(subst /,\,$(1))'"

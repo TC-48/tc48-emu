@@ -1,0 +1,3 @@
+[submodule "deps/incbin"]
+	path = deps/incbin
+	url = https://github.com/graphitemaster/incbin.git
