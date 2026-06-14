@@ -52,7 +52,7 @@ else
 	CMD_RM_RF   = rm -rf "$(1)"
 endif
 
-GENERATED_FILES  := src/tc48/gen/pow3.c include/tc48/gen/word-lits.h include/tc48/gen/version.h
+GENERATED_FILES  := src/tc48/gen/pow3.c include/tc48/gen/word-lits.h include/tc48/gen/version.h include/tc48/gen/comptime-pow3.h
 GENERATED_C_SRCS := $(filter %.c, $(GENERATED_FILES))
 
 MAIN_SRC := src/main.c
@@ -96,8 +96,9 @@ libtc48emu: $(EMU_LIB_STATIC) $(EMU_LIB_SHARED)
 libtva: $(TVA_LIB_STATIC) $(TVA_LIB_SHARED)
 
 src/tc48/gen/pow3.c: scripts/gen/pow3.py
-include/tc48/gen/word-lits.h: scripts/gen/word-lits.py
+include/tc48/gen/word-lits.h: scripts/gen/word-lits.py include/tc48/gen/comptime-pow3.h
 include/tc48/gen/version.h: scripts/gen/version.py
+include/tc48/gen/comptime-pow3.h: scripts/gen/comptime-pow3.py
 
 $(GENERATED_FILES):
 	@echo "Generating $@..."
@@ -111,7 +112,7 @@ $(EMU_LIB_STATIC): $(EMU_LIB_FULL_OBJS_STATIC)
 
 $(EMU_LIB_SHARED): $(EMU_LIB_FULL_OBJS_SHARED)
 	@$(call CMD_MKDIR_P,$(dir $@))
-	$(CC) -shared $^ $(LDFLAGS) -o $@
+	$(CC) -shared $^ $(LDFLAGS) $(FEATURE_LIBS) -o $@
 
 # libtva
 $(TVA_LIB_STATIC): $(TVA_OBJS_STATIC)
@@ -120,12 +121,12 @@ $(TVA_LIB_STATIC): $(TVA_OBJS_STATIC)
 
 $(TVA_LIB_SHARED): $(TVA_OBJS_SHARED)
 	@$(call CMD_MKDIR_P,$(dir $@))
-	$(CC) -shared $^ $(LDFLAGS) -o $@
+	$(CC) -shared $^ $(LDFLAGS) $(FEATURE_LIBS) -o $@
 
 # main tc48-emu executable
 $(EMU_EXE): $(EMU_EXE_OBJS) $(EMU_LIB_STATIC)
 	@$(call CMD_MKDIR_P,$(dir $@))
-	$(CC) $^ $(LDFLAGS) -o $@
+	$(CC) $^ $(LDFLAGS) $(FEATURE_LIBS) -o $@
 
 $(OBJ_ROOT_DIR)/%.o: %.c
 	@$(call CMD_MKDIR_P,$(dir $@))

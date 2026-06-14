@@ -30,7 +30,7 @@ typedef tc48_u128b tc48_word;         /// 48 trits
 #define TC48_HALF_VALUES       (TC48_QUARTER_VALUES * TC48_QUARTER_VALUES)       /// 3^24
 #define TC48_WORD_VALUES       ((tc48_u128b)TC48_HALF_VALUES * TC48_HALF_VALUES) /// 3^48
 
-#define _TC48_T(t, n) ((tc48_u128b)(t) * tc48_pow3_u128[n])
+#define _TC48_T(t, n) ((tc48_u128b)(t) * TC48_COMPTIME_POW3(n))
 
 #include <tc48/gen/word-lits.h>
 

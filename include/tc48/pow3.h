@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tc48/gen/comptime-pow3.h>
 #include <tc48/defs.h>
 
 #define TC48_MAX_SAFE_TRITS_U32 21
