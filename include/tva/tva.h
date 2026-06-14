@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tc48/bus/device.h>
+#include <stdbool.h>
 
 void tva_global_init();
 void tva_global_deinit();
@@ -23,3 +24,8 @@ void tva_global_deinit();
     #define TVA_TEXT_IN_GET_SIZE 5
 
 extern tc48_device_class tva_device_class;
+
+int tva_loop(void* ctx);
+bool tva_is_running(void* ctx);
+void tva_stop(void* ctx);
+

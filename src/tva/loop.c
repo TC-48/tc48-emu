@@ -99,9 +99,6 @@ static void tva_draw(SDL_Renderer* renderer, SDL_Texture* font_tex, tva_mode mod
         if (local_text->cells != NULL) {
             tva_render_text(renderer, font_tex, local_text);
         }
-    } else {
-        SDL_SetRenderDrawColor(renderer, 33, 150, 243, 255);
-        SDL_RenderClear(renderer);
     }
 }
 
@@ -110,7 +107,7 @@ int tva_loop(void* ctx) {
     SDL_Window* window = SDL_CreateWindow(
         "TC-48 Video Adapter",
         800, 600,
-       /*flags=*/0
+        SDL_WINDOW_HIDDEN
     );
 
     if (window == NULL) {
@@ -131,6 +128,7 @@ int tva_loop(void* ctx) {
 
     tva_textbuf local_text = {0};
     tva_mode local_mode = TVA_MODE_NONE;
+    bool window_visible = false;
 
     SDL_Event event;
     while (SDL_GetAtomicInt(&state->running)) {
@@ -142,8 +140,20 @@ int tva_loop(void* ctx) {
         }
 
         tva_sync_buffers(state, &local_text, &local_mode);
-        tva_draw(renderer, font_tex, local_mode, &local_text);
-        SDL_RenderPresent(renderer);
+
+        if (local_mode != TVA_MODE_NONE) {
+            if (!window_visible) {
+                SDL_ShowWindow(window);
+                window_visible = true;
+            }
+            tva_draw(renderer, font_tex, local_mode, &local_text);
+            SDL_RenderPresent(renderer);
+        } else {
+            if (window_visible) {
+                SDL_HideWindow(window);
+                window_visible = false;
+            }
+        }
 
         SDL_Delay(16);
     }
@@ -156,17 +166,14 @@ int tva_loop(void* ctx) {
     return 0;
 }
 
-bool tva_start_in_bg(tva_dev_state* state) {
-    SDL_SetAtomicInt(&state->running, 1);
-    state->thread = SDL_CreateThread(tva_loop, "TVA", state);
-    return state->thread != NULL;
+bool tva_is_running(void* ctx) {
+    tva_dev_state* state = ctx;
+    return state && SDL_GetAtomicInt(&state->running) != 0;
 }
 
-bool tva_stop_bg(tva_dev_state* state) {
-    if (state->thread == NULL) return true;
-    SDL_SetAtomicInt(&state->running, 0);
-    int r;
-    SDL_WaitThread(state->thread, &r);
-    state->thread = NULL;
-    return r >= 0;
+void tva_stop(void* ctx) {
+    tva_dev_state* state = ctx;
+    if (state) {
+        SDL_SetAtomicInt(&state->running, 0);
+    }
 }

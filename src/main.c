@@ -19,9 +19,7 @@ int main(int argc, char** argv) {
         tc48_mem_open(sys.bus.mem, argv[1]);
     }
 
-    while (!sys.cpus[0].halted) {
-        tc48_system_step(&sys);
-    }
+    tc48_system_run(&sys);
 
     tc48_system_deinit(&sys);
 

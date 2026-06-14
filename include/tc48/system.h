@@ -13,3 +13,5 @@ void tc48_system_deinit(tc48_system* sys);
 
 void tc48_system_reset(tc48_system* sys);
 void tc48_system_step(tc48_system* sys);
+void tc48_system_run(tc48_system* sys);
+

@@ -14,13 +14,13 @@ void* tva_dev_init(tc48_device* self) {
     if (state != NULL) {
         state->mode = TVA_MODE_NONE;
         state->mutex = SDL_CreateMutex();
-        tva_start_in_bg(state);
+        SDL_SetAtomicInt(&state->running, 1);
     }
     return state;
 }
 void tva_dev_deinit(tc48_device* self) {
     tva_dev_state* state = self->context.data;
-    tva_stop_bg(state);
+
 
     switch (state->mode) {
     case TVA_MODE_NONE: break;

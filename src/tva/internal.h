@@ -23,9 +23,6 @@ typedef struct {
         // tva_grphbuf grph;
     } as;
 
-    SDL_Thread* thread;
     SDL_AtomicInt running;
 } tva_dev_state;
 
-bool tva_start_in_bg(tva_dev_state* state);
-bool tva_stop_bg(tva_dev_state* state);
