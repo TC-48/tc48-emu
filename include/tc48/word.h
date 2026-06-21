@@ -22,6 +22,11 @@ typedef tc48_u128b tc48_word;         /// 48 trits
 #define TC48_HALF_TRITS       24
 #define TC48_WORD_TRITS       48
 
+#define TC48_TRYTE_TRYTES      1 // no fucking way
+#define TC48_QUARTER_TRYTES    2
+#define TC48_HALF_TRYTES       4
+#define TC48_WORD_TRYTES       8
+
 #define TC48_DOUBLET_VALUES    (3ULL * 3ULL)                                     /// 3^2
 #define TC48_TRIPLET_VALUES    (TC48_DOUBLET_VALUES * 3ULL)                      /// 3^3
 #define TC48_QUADRUPLET_VALUES (TC48_TRIPLET_VALUES * 3ULL)                      /// 3^4
