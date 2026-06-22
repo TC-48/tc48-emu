@@ -14,6 +14,8 @@ enum tc48_instr_format {
     TC48_INSTR_FORMAT_RRR,
     TC48_INSTR_FORMAT_RI,
     TC48_INSTR_FORMAT_RRI,
+    TC48_INSTR_FORMAT_IR,
+    TC48_INSTR_FORMAT_IRR,
 };
 
 // NOTE: represented as a doublet
@@ -85,6 +87,15 @@ typedef struct tc48_instr {
             tc48_reg_id r2;
             tc48_word addr;
         } rra;
+        struct {
+            tc48_imm imm;
+            tc48_reg_id r1;
+            tc48_reg_id r2;
+        } irr;
+        struct {
+            tc48_imm imm;
+            tc48_reg_id r1;
+        } ir;
      } operands;
 } tc48_instr;
 

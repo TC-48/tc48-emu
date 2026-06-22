@@ -2,7 +2,6 @@
 #include <tc48/cpu/opcode.h>
 #include <tc48/pow3.h>
 
-// Big-Endian field extraction: start is trit index from MSB (0-based)
 static tc48_word _get_val(tc48_word val, int val_width, int start, int count) {
     return (val / tc48_pow3_u128[val_width - start - count]) % tc48_pow3_u128[count];
 }
@@ -79,6 +78,15 @@ tc48_word tc48_decode(tc48_bus* bus, tc48_word addr, tc48_instr* instr) {
         _decode_reg(bus, &addr, &instr->operands.rra.r1);
         _decode_reg(bus, &addr, &instr->operands.rra.r2);
         _decode_addr(bus, &addr, &instr->operands.rra.addr);
+        break;
+    case TC48_INSTR_FORMAT_IRR:
+        _decode_imm(bus, &addr, instr->width, &instr->operands.irr.imm);
+        _decode_reg(bus, &addr, &instr->operands.irr.r1);
+        _decode_reg(bus, &addr, &instr->operands.irr.r2);
+        break;
+    case TC48_INSTR_FORMAT_IR:
+        _decode_imm(bus, &addr, instr->width, &instr->operands.ir.imm);
+        _decode_reg(bus, &addr, &instr->operands.ir.r1);
         break;
     default:
         return 0;

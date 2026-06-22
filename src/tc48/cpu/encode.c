@@ -2,7 +2,6 @@
 #include <tc48/cpu/opcode.h>
 #include <tc48/pow3.h>
 
-// Big-Endian field insertion/setting: start is trit index from MSB (0-based)
 static void _set_val(tc48_word* val, int val_width, int start, int count, tc48_word field_val) {
     tc48_u128b p_offset = tc48_pow3_u128[val_width - start - count];
     tc48_u128b p_count = tc48_pow3_u128[count];
@@ -89,6 +88,15 @@ tc48_word tc48_encode(tc48_memory* mem, tc48_word addr, const tc48_instr* instr)
         _encode_reg(mem, &addr, &instr->operands.rra.r1);
         _encode_reg(mem, &addr, &instr->operands.rra.r2);
         _encode_addr(mem, &addr, instr->operands.rra.addr);
+        break;
+    case TC48_INSTR_FORMAT_IRR:
+        _encode_imm(mem, &addr, instr->width, &instr->operands.irr.imm);
+        _encode_reg(mem, &addr, &instr->operands.irr.r1);
+        _encode_reg(mem, &addr, &instr->operands.irr.r2);
+        break;
+    case TC48_INSTR_FORMAT_IR:
+        _encode_imm(mem, &addr, instr->width, &instr->operands.ir.imm);
+        _encode_reg(mem, &addr, &instr->operands.ir.r1);
         break;
     default:
         return 0;

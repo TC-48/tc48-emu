@@ -10,7 +10,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 void tc48_cpu_init(tc48_cpu* cpu) { tc48_cpu_reset(cpu); }
 void tc48_cpu_deinit(tc48_cpu* cpu) { (void) cpu; }
@@ -116,16 +115,23 @@ static void update_load_flags(tc48_cpu* cpu, tc48_trit_state wcfr, tc48_word res
     update_load_flags(cpu, INSTR->wcfr, (tc48_word)res, MOD);                                                     \
 }
 
-#define EXEC_STORE_OP(INSTR, WIDTH, TYPE, MOD) {                                                                  \
-    tc48_reg_id r1 = INSTR->format == TC48_INSTR_FORMAT_RRR ? INSTR->operands.rrr.r1 : INSTR->operands.rra.r1;    \
-    tc48_reg_id r2 = INSTR->format == TC48_INSTR_FORMAT_RRR ? INSTR->operands.rrr.r2 : INSTR->operands.rra.r2;    \
-    tc48_word off = INSTR->format == TC48_INSTR_FORMAT_RRR                                                        \
-            ? tc48_cpu_read_reg48(&cpu->regs, INSTR->operands.rrr.r3)                                             \
-            : INSTR->operands.rra.addr;                                                                           \
-                                                                                                                  \
-    tc48_word addr = tc48_math_word_add(tc48_cpu_read_reg48(&cpu->regs, r2), sign_extend(off, TC48_WORD_VALUES)); \
-    tc48_##TYPE val = tc48_cpu_read_reg##WIDTH(&cpu->regs, r1);                                                   \
-    tc48_bus_store##WIDTH(&cpu->sys->bus, addr, val);                                                             \
+#define EXEC_STORE_OP(INSTR, WIDTH, TYPE, MOD) {                                                                   \
+    tc48_word addr;                                                                                                \
+    tc48_##TYPE val;                                                                                               \
+    if (INSTR->format == TC48_INSTR_FORMAT_IRR) {                                                                  \
+        addr = tc48_math_word_add(tc48_cpu_read_reg48(&cpu->regs, INSTR->operands.irr.r1),                         \
+                                  tc48_cpu_read_reg48(&cpu->regs, INSTR->operands.irr.r2));                        \
+        val = (tc48_##TYPE)INSTR->operands.irr.imm.i##WIDTH;                                                       \
+    } else {                                                                                                       \
+        tc48_reg_id r1 = INSTR->format == TC48_INSTR_FORMAT_RRR ? INSTR->operands.rrr.r1 : INSTR->operands.rra.r1; \
+        tc48_reg_id r2 = INSTR->format == TC48_INSTR_FORMAT_RRR ? INSTR->operands.rrr.r2 : INSTR->operands.rra.r2; \
+        tc48_word off = INSTR->format == TC48_INSTR_FORMAT_RRR                                                     \
+                ? tc48_cpu_read_reg48(&cpu->regs, INSTR->operands.rrr.r3)                                          \
+                : INSTR->operands.rra.addr;                                                                        \
+        addr = tc48_math_word_add(tc48_cpu_read_reg48(&cpu->regs, r2), sign_extend(off, TC48_WORD_VALUES));        \
+        val = tc48_cpu_read_reg##WIDTH(&cpu->regs, r1);                                                            \
+    }                                                                                                              \
+    tc48_bus_store##WIDTH(&cpu->sys->bus, addr, val);                                                              \
 }
 
 #define EXEC_IN_OP(INSTR, WIDTH, TYPE, MOD) {                                                                     \
@@ -141,16 +147,81 @@ static void update_load_flags(tc48_cpu* cpu, tc48_trit_state wcfr, tc48_word res
     update_load_flags(cpu, INSTR->wcfr, (tc48_word)res, MOD);                                                     \
 }
 
-#define EXEC_OUT_OP(INSTR, WIDTH, TYPE, MOD) {                                                                    \
-    tc48_reg_id r1 = INSTR->format == TC48_INSTR_FORMAT_RRR ? INSTR->operands.rrr.r1 : INSTR->operands.rra.r1;    \
-    tc48_reg_id r2 = INSTR->format == TC48_INSTR_FORMAT_RRR ? INSTR->operands.rrr.r2 : INSTR->operands.rra.r2;    \
-    tc48_word off = INSTR->format == TC48_INSTR_FORMAT_RRR                                                        \
-            ? tc48_cpu_read_reg48(&cpu->regs, INSTR->operands.rrr.r3)                                             \
-            : INSTR->operands.rra.addr;                                                                           \
-                                                                                                                  \
-    tc48_word addr = tc48_math_word_add(tc48_cpu_read_reg48(&cpu->regs, r2), sign_extend(off, TC48_WORD_VALUES)); \
-    tc48_##TYPE val = tc48_cpu_read_reg##WIDTH(&cpu->regs, r1);                                                   \
-    tc48_bus_out##WIDTH(&cpu->sys->bus, addr, val);                                                               \
+#define EXEC_OUT_OP(INSTR, WIDTH, TYPE, MOD) {                                                                     \
+    tc48_word addr;                                                                                                \
+    tc48_##TYPE val;                                                                                               \
+    if (INSTR->format == TC48_INSTR_FORMAT_IRR) {                                                                  \
+        addr = tc48_math_word_add(tc48_cpu_read_reg48(&cpu->regs, INSTR->operands.irr.r1),                         \
+                                  tc48_cpu_read_reg48(&cpu->regs, INSTR->operands.irr.r2));                        \
+        val = (tc48_##TYPE)INSTR->operands.irr.imm.i##WIDTH;                                                       \
+    } else {                                                                                                       \
+        tc48_reg_id r1 = INSTR->format == TC48_INSTR_FORMAT_RRR ? INSTR->operands.rrr.r1 : INSTR->operands.rra.r1; \
+        tc48_reg_id r2 = INSTR->format == TC48_INSTR_FORMAT_RRR ? INSTR->operands.rrr.r2 : INSTR->operands.rra.r2; \
+        tc48_word off = INSTR->format == TC48_INSTR_FORMAT_RRR                                                     \
+                ? tc48_cpu_read_reg48(&cpu->regs, INSTR->operands.rrr.r3)                                          \
+                : INSTR->operands.rra.addr;                                                                        \
+        addr = tc48_math_word_add(tc48_cpu_read_reg48(&cpu->regs, r2), sign_extend(off, TC48_WORD_VALUES));        \
+        val = tc48_cpu_read_reg##WIDTH(&cpu->regs, r1);                                                            \
+    }                                                                                                              \
+    tc48_bus_out##WIDTH(&cpu->sys->bus, addr, val);                                                                \
+}
+
+#define EXEC_DLOAD_OP(INSTR, WIDTH, TYPE, MOD) {                                                                  \
+    tc48_reg_id r_dest = INSTR->operands.rr.r1;                                                                   \
+    tc48_reg_id r_ptr = INSTR->operands.rr.r2;                                                                    \
+    tc48_word ptr_val = tc48_cpu_read_reg48(&cpu->regs, r_ptr);                                                   \
+    tc48_word offset = WIDTH == 6 ? 1 : (WIDTH == 12 ? 2 : (WIDTH == 24 ? 4 : 8));                                \
+    tc48_word new_ptr = tc48_math_word_sub(ptr_val, offset);                                                      \
+    tc48_cpu_write_reg48(&cpu->regs, r_ptr, new_ptr);                                                             \
+    tc48_##TYPE res = tc48_bus_load##WIDTH(&cpu->sys->bus, new_ptr);                                              \
+    tc48_cpu_write_reg##WIDTH(&cpu->regs, r_dest, res);                                                           \
+    update_load_flags(cpu, INSTR->wcfr, (tc48_word)res, MOD);                                                     \
+}
+
+#define EXEC_DIN_OP(INSTR, WIDTH, TYPE, MOD) {                                                                    \
+    tc48_reg_id r_dest = INSTR->operands.rr.r1;                                                                   \
+    tc48_reg_id r_ptr = INSTR->operands.rr.r2;                                                                    \
+    tc48_word ptr_val = tc48_cpu_read_reg48(&cpu->regs, r_ptr);                                                   \
+    tc48_word offset = WIDTH == 6 ? 1 : (WIDTH == 12 ? 2 : (WIDTH == 24 ? 4 : 8));                                \
+    tc48_word new_ptr = tc48_math_word_sub(ptr_val, offset);                                                      \
+    tc48_cpu_write_reg48(&cpu->regs, r_ptr, new_ptr);                                                             \
+    tc48_##TYPE res = tc48_bus_in##WIDTH(&cpu->sys->bus, new_ptr);                                                \
+    tc48_cpu_write_reg##WIDTH(&cpu->regs, r_dest, res);                                                           \
+    update_load_flags(cpu, INSTR->wcfr, (tc48_word)res, MOD);                                                     \
+}
+
+#define EXEC_ISTORE_OP(INSTR, WIDTH, TYPE, MOD) {                                                                 \
+    tc48_reg_id r_ptr;                                                                                            \
+    tc48_##TYPE val;                                                                                              \
+    if (INSTR->format == TC48_INSTR_FORMAT_IR) {                                                                  \
+        r_ptr = INSTR->operands.ir.r1;                                                                            \
+        val = (tc48_##TYPE)INSTR->operands.ir.imm.i##WIDTH;                                                       \
+    } else {                                                                                                      \
+        r_ptr = INSTR->operands.rr.r2;                                                                            \
+        val = tc48_cpu_read_reg##WIDTH(&cpu->regs, INSTR->operands.rr.r1);                                        \
+    }                                                                                                             \
+    tc48_word ptr_val = tc48_cpu_read_reg48(&cpu->regs, r_ptr);                                                   \
+    tc48_bus_store##WIDTH(&cpu->sys->bus, ptr_val, val);                                                          \
+    tc48_word offset = WIDTH == 6 ? 1 : (WIDTH == 12 ? 2 : (WIDTH == 24 ? 4 : 8));                                \
+    tc48_word new_ptr = tc48_math_word_add(ptr_val, offset);                                                      \
+    tc48_cpu_write_reg48(&cpu->regs, r_ptr, new_ptr);                                                             \
+}
+
+#define EXEC_IOUT_OP(INSTR, WIDTH, TYPE, MOD) {                                                                   \
+    tc48_reg_id r_ptr;                                                                                            \
+    tc48_##TYPE val;                                                                                              \
+    if (INSTR->format == TC48_INSTR_FORMAT_IR) {                                                                  \
+        r_ptr = INSTR->operands.ir.r1;                                                                            \
+        val = (tc48_##TYPE)INSTR->operands.ir.imm.i##WIDTH;                                                       \
+    } else {                                                                                                      \
+        r_ptr = INSTR->operands.rr.r2;                                                                            \
+        val = tc48_cpu_read_reg##WIDTH(&cpu->regs, INSTR->operands.rr.r1);                                        \
+    }                                                                                                             \
+    tc48_word ptr_val = tc48_cpu_read_reg48(&cpu->regs, r_ptr);                                                   \
+    tc48_bus_out##WIDTH(&cpu->sys->bus, ptr_val, val);                                                            \
+    tc48_word offset = WIDTH == 6 ? 1 : (WIDTH == 12 ? 2 : (WIDTH == 24 ? 4 : 8));                                \
+    tc48_word new_ptr = tc48_math_word_add(ptr_val, offset);                                                      \
+    tc48_cpu_write_reg48(&cpu->regs, r_ptr, new_ptr);                                                             \
 }
 
 #define EXEC_MEM_OR_IO_OP(INSTR, OP_NAME)                                                              \
@@ -196,6 +267,11 @@ void tc48_cpu_exec(tc48_cpu* cpu, const tc48_instr* instr) {
     case TC48_OP_STORE: EXEC_MEM_OR_IO_OP(instr, STORE);
     case TC48_OP_IN:    EXEC_MEM_OR_IO_OP(instr, IN);
     case TC48_OP_OUT:   EXEC_MEM_OR_IO_OP(instr, OUT);
+
+    case TC48_OP_DIN:    EXEC_MEM_OR_IO_OP(instr, DIN);
+    case TC48_OP_IOUT:   EXEC_MEM_OR_IO_OP(instr, IOUT);
+    case TC48_OP_DLOAD:  EXEC_MEM_OR_IO_OP(instr, DLOAD);
+    case TC48_OP_ISTORE: EXEC_MEM_OR_IO_OP(instr, ISTORE);
     }
 }
 

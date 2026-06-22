@@ -59,6 +59,24 @@ static void assert_instr_eq(const tc48_instr* a, const tc48_instr* b) {
         cr_assert_eq(a->operands.rra.r2.lane, b->operands.rra.r2.lane);
         cr_assert_eq(a->operands.rra.addr,    b->operands.rra.addr);
         break;
+    case TC48_INSTR_FORMAT_IRR:
+        cr_assert_eq(a->operands.irr.r1.base, b->operands.irr.r1.base);
+        cr_assert_eq(a->operands.irr.r1.lane, b->operands.irr.r1.lane);
+        cr_assert_eq(a->operands.irr.r2.base, b->operands.irr.r2.base);
+        cr_assert_eq(a->operands.irr.r2.lane, b->operands.irr.r2.lane);
+        if (a->width == TC48_OPERAND_WIDTH_6) cr_assert_eq(a->operands.irr.imm.i6, b->operands.irr.imm.i6);
+        else if (a->width == TC48_OPERAND_WIDTH_12) cr_assert_eq(a->operands.irr.imm.i12, b->operands.irr.imm.i12);
+        else if (a->width == TC48_OPERAND_WIDTH_24) cr_assert_eq(a->operands.irr.imm.i24, b->operands.irr.imm.i24);
+        else if (a->width == TC48_OPERAND_WIDTH_48) cr_assert(a->operands.irr.imm.i48 == b->operands.irr.imm.i48);
+        break;
+    case TC48_INSTR_FORMAT_IR:
+        cr_assert_eq(a->operands.ir.r1.base, b->operands.ir.r1.base);
+        cr_assert_eq(a->operands.ir.r1.lane, b->operands.ir.r1.lane);
+        if (a->width == TC48_OPERAND_WIDTH_6) cr_assert_eq(a->operands.ir.imm.i6, b->operands.ir.imm.i6);
+        else if (a->width == TC48_OPERAND_WIDTH_12) cr_assert_eq(a->operands.ir.imm.i12, b->operands.ir.imm.i12);
+        else if (a->width == TC48_OPERAND_WIDTH_24) cr_assert_eq(a->operands.ir.imm.i24, b->operands.ir.imm.i24);
+        else if (a->width == TC48_OPERAND_WIDTH_48) cr_assert(a->operands.ir.imm.i48 == b->operands.ir.imm.i48);
+        break;
     }
 }
 
@@ -139,6 +157,33 @@ Test(cpu_encode_decode, format_rri) {
         .operands.rri.r1 = { .base = 9, .lane = 0 },
         .operands.rri.r2 = { .base = 10, .lane = 2 },
         .operands.rri.imm.i24 = 9999
+    };
+    test_symmetry(&instr);
+}
+
+Test(cpu_encode_decode, format_irr) {
+    tc48_instr instr = {
+        .format = TC48_INSTR_FORMAT_IRR,
+        .width = TC48_OPERAND_WIDTH_24,
+        .wcfr = TC48_WCFR_FULL,
+        .pred = TC48_PRED_NE,
+        .opcode = TC48_OP_STORE,
+        .operands.irr.r1 = { .base = 9, .lane = 0 },
+        .operands.irr.r2 = { .base = 10, .lane = 2 },
+        .operands.irr.imm.i24 = 9999
+    };
+    test_symmetry(&instr);
+}
+
+Test(cpu_encode_decode, format_ir) {
+    tc48_instr instr = {
+        .format = TC48_INSTR_FORMAT_IR,
+        .width = TC48_OPERAND_WIDTH_24,
+        .wcfr = TC48_WCFR_FULL,
+        .pred = TC48_PRED_NE,
+        .opcode = TC48_OP_ISTORE,
+        .operands.ir.r1 = { .base = 9, .lane = 0 },
+        .operands.ir.imm.i24 = 9999
     };
     test_symmetry(&instr);
 }
